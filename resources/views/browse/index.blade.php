@@ -182,6 +182,8 @@
                             @endif
                         </div>
                     </form>
+                </div>
+            </div>
         </div>
 
         <!-- Main Content -->
