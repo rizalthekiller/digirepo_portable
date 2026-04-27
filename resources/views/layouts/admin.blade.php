@@ -149,23 +149,23 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 25px 0;
-            margin-bottom: 20px;
-            background: transparent;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 20px 30px;
+            margin: 0 -30px 30px -30px;
+            background: var(--zenith-bg);
+            transition: all 0.4s ease;
+            border-bottom: 1px solid rgba(0,0,0,0.02);
         }
 
         /* Efek saat discroll - Lebih premium dan menyatu */
         .zenith-navbar.scrolled {
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-            padding: 15px 30px;
-            margin-left: -30px;
-            margin-right: -30px;
-            border-radius: 0 0 30px 30px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            padding: 15px 40px;
+            margin-top: 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         .user-pill {
