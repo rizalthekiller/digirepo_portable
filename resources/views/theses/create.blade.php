@@ -20,8 +20,8 @@
                     @csrf
                     
                     <div class="mb-4">
-                        <label class="form-label fw-600">Judul Lengkap</label>
-                        <input type="text" name="title" class="form-control form-control-lg border-0 bg-light rounded-4 p-3" value="{{ old('title', $existingThesis->title ?? '') }}" placeholder="Masukkan judul skripsi/thesis Anda" required>
+                        <label class="form-label fw-600" id="title-label">Judul Lengkap</label>
+                        <input type="text" name="title" id="title-input" class="form-control form-control-lg border-0 bg-light rounded-4 p-3" value="{{ old('title', $existingThesis->title ?? '') }}" placeholder="Masukkan judul skripsi/thesis Anda" required>
                     </div>
 
                     <div class="row mb-4">
@@ -40,7 +40,7 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-600">Tahun Lulus</label>
+                            <label class="form-label fw-600" id="year-label">Tahun Lulus</label>
                             <input type="number" name="year" class="form-control border-0 bg-light rounded-4 p-3" value="{{ old('year', $existingThesis->year ?? date('Y')) }}" required>
                         </div>
                     </div>
@@ -109,7 +109,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label fw-600">Abstrak / Sinopsis</label>
+                        <label class="form-label fw-600" id="abstract-label">Abstrak / Sinopsis</label>
                         <textarea name="abstract" class="form-control border-0 bg-light rounded-4 p-3" rows="6" placeholder="Tuliskan abstrak di sini..." required>{{ old('abstract', $existingThesis->abstract ?? '') }}</textarea>
                     </div>
 
@@ -303,6 +303,12 @@
     const academicFields = document.getElementById('academic-fields');
     const journalFields = document.getElementById('journal-fields');
     const bookFields = document.getElementById('book-fields');
+    
+    // Elements for Dynamic Labels/Placeholders
+    const titleLabel = document.getElementById('title-label');
+    const titleInput = document.getElementById('title-input');
+    const yearLabel = document.getElementById('year-label');
+    const abstractLabel = document.getElementById('abstract-label');
 
     function toggleFields() {
         const type = typeSelect.value;
@@ -314,12 +320,27 @@
         
         if (['Skripsi', 'Thesis', 'Disertasi'].includes(type)) {
             academicFields.classList.remove('d-none');
+            titleLabel.innerText = "Judul Lengkap " + type;
+            titleInput.placeholder = "Masukkan judul " + type.toLowerCase() + " Anda...";
+            yearLabel.innerText = "Tahun Lulus / Yudisium";
+            abstractLabel.innerText = "Abstrak";
         } else if (['Jurnal', 'Artikel'].includes(type)) {
             journalFields.classList.remove('d-none');
+            titleLabel.innerText = "Judul " + type;
+            titleInput.placeholder = "Masukkan judul " + type.toLowerCase() + " Anda...";
+            yearLabel.innerText = "Tahun Terbit / Publikasi";
+            abstractLabel.innerText = "Abstrak";
         } else if (['Buku'].includes(type)) {
             bookFields.classList.remove('d-none');
+            titleLabel.innerText = "Judul Buku";
+            titleInput.placeholder = "Masukkan judul buku lengkap Anda...";
+            yearLabel.innerText = "Tahun Terbit";
+            abstractLabel.innerText = "Sinopsis Buku";
         } else {
-            // Untuk 'Lainnya', tampilkan yang paling umum atau biarkan kosong
+            titleLabel.innerText = "Judul Lengkap";
+            titleInput.placeholder = "Masukkan judul dokumen Anda...";
+            yearLabel.innerText = "Tahun";
+            abstractLabel.innerText = "Abstrak / Deskripsi";
         }
     }
 
