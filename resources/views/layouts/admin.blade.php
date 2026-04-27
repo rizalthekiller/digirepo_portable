@@ -174,6 +174,14 @@
             gap: 12px;
             box-shadow: var(--zenith-card-shadow);
             border: 1px solid rgba(0,0,0,0.01);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .user-pill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+            border-color: var(--zenith-primary);
         }
 
         .avatar-circle {
@@ -409,14 +417,42 @@
                     </div>
                 </div>
 
-                <div class="user-pill d-flex align-items-center gap-3">
-                    <div class="text-end">
-                        <div class="fw-800 small mb-0">{{ Auth::user()->name }}</div>
-                        <div class="text-muted" style="font-size: 0.65rem;">{{ strtoupper(Auth::user()->role) }}</div>
+                <div class="dropdown">
+                    <div class="user-pill d-flex align-items-center gap-3" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="text-end d-none d-sm-block">
+                            <div class="fw-800 small mb-0">{{ Auth::user()->name }}</div>
+                            <div class="text-muted" style="font-size: 0.65rem;">{{ strtoupper(Auth::user()->role) }}</div>
+                        </div>
+                        <div class="avatar-circle shadow-sm">
+                            {{ substr(Auth::user()->name, 0, 1) }}
+                        </div>
                     </div>
-                    <div class="avatar-circle">
-                        {{ substr(Auth::user()->name, 0, 1) }}
-                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-3 animate-fade-in" style="border-radius: 20px; min-width: 220px;">
+                        <li class="px-3 py-2 mb-2">
+                            <div class="fw-800 text-dark small">{{ Auth::user()->name }}</div>
+                            <div class="text-muted extra-small" style="font-size: 0.65rem;">{{ Auth::user()->email }}</div>
+                        </li>
+                        <li><hr class="dropdown-divider opacity-50"></li>
+                        <li>
+                            <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-2 small fw-600" href="{{ route('profile') }}">
+                                <i class="fas fa-user-circle text-primary"></i> Profil Saya
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-2 small fw-600" href="{{ route('browse') }}">
+                                <i class="fas fa-search text-secondary"></i> Telusuri Repo
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider opacity-50"></li>
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST" data-turbo="false">
+                                @csrf
+                                <button type="submit" class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-2 small fw-800 text-danger">
+                                    <i class="fas fa-sign-out-alt"></i> Keluar Sistem
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </header>
