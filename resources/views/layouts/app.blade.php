@@ -28,14 +28,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #4f46e5;        /* Indigo - Modern & Professional */
-            --primary-light: #8b5cf6;  /* Violet - Friendly Accent */
-            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #8b5cf6 100%);
+            --primary: #1e3a8a;        /* Navy Blue - Professional & Elegant */
+            --primary-light: #3b82f6;  /* Blue - Friendly Accent */
+            --primary-gradient: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
             --secondary: #64748b;      /* Slate - For Muted Text */
             --dark: #0f172a;           /* Deep Navy - For Dark Backgrounds */
             --text-main: #1e293b;      /* Slate 800 - High Readability on White */
             --text-muted: #475569;     /* Slate 600 - Secondary Text */
-            --bg-body: #e2e8f0;        /* Slate 200 - Strong contrast against white elements */
+            --bg-body: #f1f5f9;        /* Slate 100 - Clean background */
             --card-shadow: 0 10px 40px rgba(15, 23, 42, 0.05);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }

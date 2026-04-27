@@ -29,9 +29,9 @@
         #nprogress .bar { background: #fff !important; height: 3px !important; }
         #nprogress .spinner-icon { border-top-color: #fff !important; border-left-color: #fff !important; }
         :root {
-            --zenith-primary: #4f46e5;
-            --zenith-secondary: #8b5cf6;
-            --zenith-bg: #e2e8f0;
+            --zenith-primary: #1e3a8a;
+            --zenith-secondary: #3b82f6;
+            --zenith-bg: #f1f5f9;
             --zenith-sidebar: #0f172a;
             --zenith-card-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
             --zenith-radius: 24px;
