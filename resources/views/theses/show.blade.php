@@ -203,12 +203,79 @@
                                         <div class="value-meta">{{ $thesis->user->nim ?: '-' }}</div>
                                     </div>
                                 </div>
+                                @if($thesis->supervisor_name && in_array($thesis->type, ['Skripsi', 'Thesis', 'Disertasi']))
                                 <div class="col-12">
                                     <div class="meta-item">
                                         <span class="label-meta">Dosen Pembimbing</span>
-                                        <div class="value-meta">{{ $thesis->supervisor_name ?: '-' }}</div>
+                                        <div class="value-meta">{{ $thesis->supervisor_name }}</div>
                                     </div>
                                 </div>
+                                @endif
+
+                                @if($thesis->journal_name)
+                                <div class="col-12">
+                                    <div class="meta-item">
+                                        <span class="label-meta">Nama Jurnal / Prosiding</span>
+                                        <div class="value-meta text-primary">{{ $thesis->journal_name }}</div>
+                                    </div>
+                                </div>
+                                @if($thesis->volume || $thesis->issue || $thesis->pages)
+                                <div class="col-12">
+                                    <div class="meta-item">
+                                        <span class="label-meta">Edisi Jurnal (Vol / No / Hal)</span>
+                                        <div class="value-meta">
+                                            Vol. {{ $thesis->volume ?: '-' }} / No. {{ $thesis->issue ?: '-' }} / Hlm. {{ $thesis->pages ?: '-' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+                                @if($thesis->doi)
+                                <div class="col-12">
+                                    <div class="meta-item">
+                                        <span class="label-meta">DOI</span>
+                                        <div class="value-meta">
+                                            <a href="https://doi.org/{{ $thesis->doi }}" target="_blank" class="text-decoration-none text-primary">
+                                                <i class="fas fa-external-link-alt me-1 small"></i> {{ $thesis->doi }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+                                @if($thesis->issn)
+                                <div class="col-12">
+                                    <div class="meta-item">
+                                        <span class="label-meta">ISSN</span>
+                                        <div class="value-meta">{{ $thesis->issn }}</div>
+                                    </div>
+                                </div>
+                                @endif
+                                @endif
+
+                                @if($thesis->isbn)
+                                <div class="col-12">
+                                    <div class="meta-item">
+                                        <span class="label-meta">ISBN</span>
+                                        <div class="value-meta">{{ $thesis->isbn }}</div>
+                                    </div>
+                                </div>
+                                @endif
+                                @if($thesis->publisher)
+                                <div class="col-12">
+                                    <div class="meta-item">
+                                        <span class="label-meta">Penerbit</span>
+                                        <div class="value-meta">{{ $thesis->publisher }}</div>
+                                    </div>
+                                </div>
+                                @endif
+                                @if($thesis->edition)
+                                <div class="col-12">
+                                    <div class="meta-item">
+                                        <span class="label-meta">Edisi / Cetakan</span>
+                                        <div class="value-meta">{{ $thesis->edition }}</div>
+                                    </div>
+                                </div>
+                                @endif
+
                                 <div class="col-12">
                                     <div class="meta-item">
                                         <span class="label-meta">Program Studi</span>
