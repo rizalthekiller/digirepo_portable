@@ -79,155 +79,109 @@
     <div class="row g-5">
         <!-- Sidebar Filter -->
         <div class="col-lg-3">
-            <div class="filter-sidebar-container animate-fade-in sticky-top" style="top: 100px;">
-                <div class="glass-card overflow-hidden" style="border-radius: 30px;">
-                    <!-- Header Sidebar -->
-                    <div class="p-4 border-bottom bg-light bg-opacity-50 d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary">
-                                <i class="fas fa-filter"></i>
-                            </div>
-                            <h6 class="fw-800 mb-0 text-dark">Filter Koleksi</h6>
+            <div class="filter-sidebar-container sticky-top" style="top: 100px;">
+                <div class="bg-white shadow-sm border-0 p-4" style="border-radius: 24px;">
+                    <!-- Header -->
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary">
+                            <i class="fas fa-search-plus"></i>
                         </div>
-                        @if(request()->hasAny(['q', 'faculty', 'department', 'year', 'type', 'author', 'supervisor', 'sort']))
-                            <a href="{{ url('/browse') }}" class="btn btn-sm btn-light rounded-pill px-3 fw-bold text-danger extra-small" title="Bersihkan Semua">
-                                RESET
-                            </a>
-                        @endif
+                        <h5 class="fw-bold mb-0 text-dark">Saring Koleksi</h5>
                     </div>
 
                     <form action="{{ url('/browse') }}" method="GET">
-                        <div class="accordion accordion-flush custom-accordion" id="filterAccordion">
-                            
-                            <!-- Pencarian Kata Kunci -->
-                            <div class="accordion-item border-bottom">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button fw-800 text-dark py-4 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSearch" aria-expanded="true">
-                                        <i class="fas fa-search me-2 text-primary"></i> PENCARIAN
-                                    </button>
-                                </h2>
-                                <div id="collapseSearch" class="accordion-collapse collapse show" data-bs-parent="#filterAccordion">
-                                    <div class="accordion-body px-4 pb-4 pt-0">
-                                        <input type="text" name="q" class="form-control-premium w-100" placeholder="Judul, abstrak..." value="{{ request('q') }}">
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- Section: Kata Kunci -->
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-secondary mb-2">Kata Kunci</label>
+                            <input type="text" name="q" class="form-control py-3 px-3 border-light-subtle" style="border-radius: 12px; background: #fcfdfe;" placeholder="Cari judul atau abstrak..." value="{{ request('q') }}">
+                        </div>
 
-                            <!-- Kategori Akademik -->
-                            <div class="accordion-item border-bottom">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed fw-800 text-dark py-4 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAcademic">
-                                        <i class="fas fa-university me-2 text-primary"></i> AKADEMIK
-                                    </button>
-                                </h2>
-                                <div id="collapseAcademic" class="accordion-collapse collapse {{ request()->hasAny(['faculty', 'department']) ? 'show' : '' }}" data-bs-parent="#filterAccordion">
-                                    <div class="accordion-body px-4 pb-4 pt-0">
-                                        <div class="d-grid gap-2">
-                                            <select name="faculty" class="form-select-premium w-100">
-                                                <option value="">Semua Fakultas</option>
-                                                @foreach($faculties as $f)
-                                                    <option value="{{ $f->id }}" {{ request('faculty') == $f->id ? 'selected' : '' }}>{{ $f->name }}</option>
-                                                @endforeach
-                                            </select>
-                                            <select name="department" class="form-select-premium w-100">
-                                                <option value="">Semua Prodi</option>
-                                                @foreach($faculties as $f)
-                                                    <optgroup label="{{ $f->name }}">
-                                                        @foreach($departments->where('faculty_id', $f->id) as $d)
-                                                            <option value="{{ $d->id }}" {{ request('department') == $d->id ? 'selected' : '' }}>{{ $d->name }}</option>
-                                                        @endforeach
-                                                    </optgroup>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <hr class="my-4 opacity-5">
 
-                            <!-- Tipe Dokumen -->
-                            <div class="accordion-item border-bottom">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed fw-800 text-dark py-4 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseType">
-                                        <i class="fas fa-tags me-2 text-primary"></i> TIPE DOKUMEN
-                                    </button>
-                                </h2>
-                                <div id="collapseType" class="accordion-collapse collapse {{ request()->filled('type') ? 'show' : '' }}" data-bs-parent="#filterAccordion">
-                                    <div class="accordion-body px-4 pb-4 pt-0">
-                                        <div class="d-grid gap-2">
-                                            @foreach($types as $t)
-                                                @php
-                                                    $icon = 'fa-file-alt';
-                                                    if(Str::contains($t->name, ['Skripsi', 'Tesis', 'Disertasi'])) $icon = 'fa-graduation-cap';
-                                                    if(Str::contains($t->name, 'Buku')) $icon = 'fa-book';
-                                                    if(Str::contains($t->name, 'Jurnal')) $icon = 'fa-journal-whills';
-                                                @endphp
-                                                <div class="form-check custom-filter-radio">
-                                                    <input class="form-check-input d-none" type="radio" name="type" value="{{ $t->name }}" id="type{{ $t->id }}" {{ request('type') == $t->name ? 'checked' : '' }}>
-                                                    <label class="form-check-label d-flex align-items-center justify-content-between py-2 px-3 border rounded-3 w-100 cursor-pointer transition-all" for="type{{ $t->id }}">
-                                                        <div class="d-flex align-items-center gap-2">
-                                                            <i class="fas {{ $icon }} opacity-50" style="width: 18px;"></i>
-                                                            <span class="fw-bold" style="font-size: 0.75rem;">{{ $t->name }}</span>
-                                                        </div>
-                                                    </label>
-                                                </div>
+                        <!-- Section: Akademik -->
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-secondary mb-2">Kategori Akademik</label>
+                            <div class="d-grid gap-3">
+                                <select name="faculty" class="form-select py-3 border-light-subtle" style="border-radius: 12px; background: #fcfdfe; font-size: 0.9rem;">
+                                    <option value="">Semua Fakultas</option>
+                                    @foreach($faculties as $f)
+                                        <option value="{{ $f->id }}" {{ request('faculty') == $f->id ? 'selected' : '' }}>{{ $f->name }}</option>
+                                    @endforeach
+                                </select>
+
+                                <select name="department" class="form-select py-3 border-light-subtle" style="border-radius: 12px; background: #fcfdfe; font-size: 0.9rem;">
+                                    <option value="">Semua Program Studi</option>
+                                    @foreach($faculties as $f)
+                                        <optgroup label="{{ $f->name }}">
+                                            @foreach($departments->where('faculty_id', $f->id) as $d)
+                                                <option value="{{ $d->id }}" {{ request('department') == $d->id ? 'selected' : '' }}>{{ $d->name }}</option>
                                             @endforeach
-                                        </div>
-                                    </div>
-                                </div>
+                                        </optgroup>
+                                    @endforeach
+                                </select>
                             </div>
+                        </div>
 
-                            <!-- Periode & Pengurutan -->
-                            <div class="accordion-item border-bottom">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed fw-800 text-dark py-4 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMeta">
-                                        <i class="fas fa-clock me-2 text-primary"></i> PERIODE & URUTAN
-                                    </button>
-                                </h2>
-                                <div id="collapseMeta" class="accordion-collapse collapse {{ request()->hasAny(['year', 'sort']) ? 'show' : '' }}" data-bs-parent="#filterAccordion">
-                                    <div class="accordion-body px-4 pb-4 pt-0">
-                                        <div class="d-grid gap-2">
-                                            <select name="year" class="form-select-premium w-100">
-                                                <option value="">Semua Tahun</option>
-                                                @foreach($years as $y)
-                                                    <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
-                                                @endforeach
-                                            </select>
-                                            <select name="sort" class="form-select-premium w-100">
-                                                <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
-                                                <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Terlama</option>
-                                                <option value="title" {{ request('sort') == 'title' ? 'selected' : '' }}>Judul (A-Z)</option>
-                                            </select>
-                                        </div>
-                                    </div>
+                        <hr class="my-4 opacity-5">
+
+                        <!-- Section: Tahun & Urutan -->
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-secondary mb-2">Tahun & Urutan</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <select name="year" class="form-select py-3 border-light-subtle" style="border-radius: 12px; background: #fcfdfe; font-size: 0.9rem;">
+                                        <option value="">Tahun</option>
+                                        @foreach($years as $y)
+                                            <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                            </div>
-
-                            <!-- Personalia -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed fw-800 text-dark py-4 px-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePerson">
-                                        <i class="fas fa-user-edit me-2 text-primary"></i> PERSONALIA
-                                    </button>
-                                </h2>
-                                <div id="collapsePerson" class="accordion-collapse collapse {{ request()->hasAny(['author', 'supervisor']) ? 'show' : '' }}" data-bs-parent="#filterAccordion">
-                                    <div class="accordion-body px-4 pb-4 pt-0">
-                                        <div class="d-grid gap-2">
-                                            <input type="text" name="author" class="form-control-premium w-100" placeholder="Nama Penulis..." value="{{ request('author') }}">
-                                            <input type="text" name="supervisor" class="form-control-premium w-100" placeholder="Nama Pembimbing..." value="{{ request('supervisor') }}">
-                                        </div>
-                                    </div>
+                                <div class="col-6">
+                                    <select name="sort" class="form-select py-3 border-light-subtle" style="border-radius: 12px; background: #fcfdfe; font-size: 0.9rem;">
+                                        <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
+                                        <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Terlama</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="p-4 bg-light bg-opacity-25 border-top">
-                            <button type="submit" class="btn btn-primary w-100 py-3 rounded-4 shadow-sm fw-800">
-                                <i class="fas fa-search me-2"></i> TERAPKAN FILTER
+                        <!-- Section: Penulis -->
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-secondary mb-2">Penulis & Pembimbing</label>
+                            <div class="d-grid gap-2">
+                                <input type="text" name="author" class="form-control py-3 border-light-subtle" style="border-radius: 12px; background: #fcfdfe;" placeholder="Nama Penulis..." value="{{ request('author') }}">
+                                <input type="text" name="supervisor" class="form-control py-3 border-light-subtle" style="border-radius: 12px; background: #fcfdfe;" placeholder="Nama Pembimbing..." value="{{ request('supervisor') }}">
+                            </div>
+                        </div>
+
+                        <hr class="my-4 opacity-5">
+
+                        <!-- Section: Tipe -->
+                        <div class="mb-5">
+                            <label class="form-label small fw-bold text-secondary mb-3">Tipe Dokumen</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach($types as $t)
+                                <div class="form-check p-0 m-0">
+                                    <input class="btn-check" type="radio" name="type" value="{{ $t->name }}" id="type{{ $t->id }}" {{ request('type') == $t->name ? 'checked' : '' }}>
+                                    <label class="btn btn-outline-primary btn-sm rounded-pill px-3 py-2 fw-bold" style="font-size: 0.75rem;" for="type{{ $t->id }}">
+                                        {{ $t->name }}
+                                    </label>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary py-3 rounded-3 fw-bold shadow-sm">
+                                <i class="fas fa-search me-2"></i> CARI SEKARANG
                             </button>
+                            @if(request()->hasAny(['q', 'faculty', 'department', 'year', 'type', 'author', 'supervisor', 'sort']))
+                                <a href="{{ url('/browse') }}" class="btn btn-link text-muted small text-decoration-none fw-bold mt-2">
+                                    <i class="fas fa-undo me-1"></i> Atur Ulang Filter
+                                </a>
+                            @endif
                         </div>
                     </form>
-                </div>
-            </div>
         </div>
 
         <!-- Main Content -->
