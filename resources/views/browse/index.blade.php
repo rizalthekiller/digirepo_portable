@@ -86,7 +86,7 @@
                         <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary">
                             <i class="fas fa-search-plus"></i>
                         </div>
-                        <h5 class="fw-bold mb-0 text-dark">Saring Koleksi</h5>
+                        <h5 class="fw-bold mb-0 text-dark">Filter Pencarian</h5>
                     </div>
 
                     <form action="{{ url('/browse') }}" method="GET">
@@ -173,11 +173,11 @@
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary py-3 rounded-3 fw-bold shadow-sm">
-                                <i class="fas fa-search me-2"></i> CARI SEKARANG
+                                <i class="fas fa-search me-2"></i> TEMUKAN DOKUMEN
                             </button>
                             @if(request()->hasAny(['q', 'faculty', 'department', 'year', 'type', 'author', 'supervisor', 'sort']))
                                 <a href="{{ url('/browse') }}" class="btn btn-link text-muted small text-decoration-none fw-bold mt-2">
-                                    <i class="fas fa-undo me-1"></i> Atur Ulang Filter
+                                    <i class="fas fa-sync me-1"></i> Bersihkan Semua Filter
                                 </a>
                             @endif
                         </div>
