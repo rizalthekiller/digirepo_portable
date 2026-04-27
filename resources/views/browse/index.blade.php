@@ -225,7 +225,9 @@
                         </h4>
                         <div class="d-flex flex-wrap gap-4 text-secondary small mb-3 fw-600">
                             <span><i class="fas fa-user-circle me-2 text-primary-light"></i> {{ $thesis->user->name }}</span>
-                            <span><i class="fas fa-university me-2 text-primary-light"></i> {{ $thesis->user->department->name ?? '-' }}</span>
+                            @if(!$thesis->user->isDosen())
+                                <span><i class="fas fa-university me-2 text-primary-light"></i> {{ $thesis->user->department->name ?? '-' }}</span>
+                            @endif
                         </div>
                         <p class="text-muted small mb-0 text-truncate-2 opacity-75">
                             {{ Str::limit($thesis->abstract, 200) }}

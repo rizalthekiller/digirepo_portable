@@ -276,12 +276,14 @@
                                 </div>
                                 @endif
 
+                                @if(!$thesis->user->isDosen())
                                 <div class="col-12">
                                     <div class="meta-item">
                                         <span class="label-meta">Program Studi</span>
                                         <div class="value-meta">{{ $thesis->user->department->name ?? '-' }}</div>
                                     </div>
                                 </div>
+                                @endif
                             </div>
                         </div>
                     </div>
