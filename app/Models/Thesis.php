@@ -30,7 +30,9 @@ class Thesis extends Model
         'supervisor_name', 'type', 'file_path', 'status', 
         'rejection_reason', 'was_rejected', 'certificate_number', 
         'verification_hash', 'certificate_content', 'delivery_status', 
-        'is_watermarked', 'certificate_date', 'embargo_until'
+        'is_watermarked', 'certificate_date', 'embargo_until',
+        'journal_name', 'volume', 'issue', 'pages', 'issn', 'doi',
+        'isbn', 'publisher', 'edition'
     ];
 
     /**

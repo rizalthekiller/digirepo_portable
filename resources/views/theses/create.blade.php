@@ -27,7 +27,7 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <label class="form-label fw-600">Tipe Dokumen</label>
-                            <select name="type" class="form-select border-0 bg-light rounded-4 p-3" required>
+                            <select name="type" id="type-select" class="form-select border-0 bg-light rounded-4 p-3" required>
                                 <option value="Skripsi" {{ (old('type', $existingThesis->type ?? '') == 'Skripsi') ? 'selected' : '' }}>Skripsi (S1)</option>
                                 <option value="Thesis" {{ (old('type', $existingThesis->type ?? '') == 'Thesis') ? 'selected' : '' }}>Thesis (S2)</option>
                                 <option value="Disertasi" {{ (old('type', $existingThesis->type ?? '') == 'Disertasi') ? 'selected' : '' }}>Disertasi (S3)</option>
@@ -45,9 +45,62 @@
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="form-label fw-600">Dosen Pembimbing</label>
-                        <input type="text" name="supervisor_name" class="form-control border-0 bg-light rounded-4 p-3" value="{{ old('supervisor_name', $existingThesis->supervisor_name ?? '') }}" placeholder="Nama lengkap tanpa gelar" required>
+                    <!-- Kolom Spesifik Akademik (Skripsi/Tesis/Disertasi) -->
+                    <div id="academic-fields" class="animate-fade-in">
+                        <div class="mb-4">
+                            <label class="form-label fw-600">Dosen Pembimbing</label>
+                            <input type="text" name="supervisor_name" class="form-control border-0 bg-light rounded-4 p-3" value="{{ old('supervisor_name', $existingThesis->supervisor_name ?? '') }}" placeholder="Nama lengkap tanpa gelar">
+                        </div>
+                    </div>
+
+                    <!-- Kolom Spesifik Jurnal / Artikel -->
+                    <div id="journal-fields" class="animate-fade-in d-none">
+                        <div class="mb-4">
+                            <label class="form-label fw-600">Nama Jurnal / Prosiding</label>
+                            <input type="text" name="journal_name" class="form-control border-0 bg-light rounded-4 p-3" value="{{ old('journal_name', $existingThesis->journal_name ?? '') }}" placeholder="Contoh: Jurnal Teknologi Informasi">
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-600">Volume</label>
+                                <input type="text" name="volume" class="form-control border-0 bg-light rounded-4 p-3" value="{{ old('volume', $existingThesis->volume ?? '') }}" placeholder="Vol. 10">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-600">Nomor (Issue)</label>
+                                <input type="text" name="issue" class="form-control border-0 bg-light rounded-4 p-3" value="{{ old('issue', $existingThesis->issue ?? '') }}" placeholder="No. 2">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-600">Halaman</label>
+                                <input type="text" name="pages" class="form-control border-0 bg-light rounded-4 p-3" value="{{ old('pages', $existingThesis->pages ?? '') }}" placeholder="120-135">
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-600">ISSN</label>
+                                <input type="text" name="issn" class="form-control border-0 bg-light rounded-4 p-3" value="{{ old('issn', $existingThesis->issn ?? '') }}" placeholder="e-ISSN / p-ISSN">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-600">DOI</label>
+                                <input type="text" name="doi" class="form-control border-0 bg-light rounded-4 p-3" value="{{ old('doi', $existingThesis->doi ?? '') }}" placeholder="https://doi.org/...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kolom Spesifik Buku -->
+                    <div id="book-fields" class="animate-fade-in d-none">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-600">ISBN</label>
+                                <input type="text" name="isbn" class="form-control border-0 bg-light rounded-4 p-3" value="{{ old('isbn', $existingThesis->isbn ?? '') }}" placeholder="978-...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-600">Penerbit</label>
+                                <input type="text" name="publisher" class="form-control border-0 bg-light rounded-4 p-3" value="{{ old('publisher', $existingThesis->publisher ?? '') }}" placeholder="Nama Penerbit">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-600">Edisi / Cetakan</label>
+                            <input type="text" name="edition" class="form-control border-0 bg-light rounded-4 p-3" value="{{ old('edition', $existingThesis->edition ?? '') }}" placeholder="Contoh: Edisi Pertama">
+                        </div>
                     </div>
 
                     <div class="mb-4">
@@ -56,7 +109,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label fw-600">Abstrak</label>
+                        <label class="form-label fw-600">Abstrak / Sinopsis</label>
                         <textarea name="abstract" class="form-control border-0 bg-light rounded-4 p-3" rows="6" placeholder="Tuliskan abstrak di sini..." required>{{ old('abstract', $existingThesis->abstract ?? '') }}</textarea>
                     </div>
 
@@ -246,5 +299,33 @@
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         xhr.send(formData);
     };
+    const typeSelect = document.getElementById('type-select');
+    const academicFields = document.getElementById('academic-fields');
+    const journalFields = document.getElementById('journal-fields');
+    const bookFields = document.getElementById('book-fields');
+
+    function toggleFields() {
+        const type = typeSelect.value;
+        
+        // Sembunyikan semua dulu
+        academicFields.classList.add('d-none');
+        journalFields.classList.add('d-none');
+        bookFields.classList.add('d-none');
+        
+        if (['Skripsi', 'Thesis', 'Disertasi'].includes(type)) {
+            academicFields.classList.remove('d-none');
+        } else if (['Jurnal', 'Artikel'].includes(type)) {
+            journalFields.classList.remove('d-none');
+        } else if (['Buku'].includes(type)) {
+            bookFields.classList.remove('d-none');
+        } else {
+            // Untuk 'Lainnya', tampilkan yang paling umum atau biarkan kosong
+        }
+    }
+
+    typeSelect.addEventListener('change', toggleFields);
+    
+    // Jalankan sekali saat halaman dimuat (untuk mode edit)
+    toggleFields();
 </script>
 @endsection

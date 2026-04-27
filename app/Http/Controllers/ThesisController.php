@@ -260,16 +260,28 @@ class ThesisController extends Controller
             }
         }
 
+        $isAcademic = in_array($request->type, ['Skripsi', 'Thesis', 'Disertasi']);
+
         $request->validate([
             'title' => 'required|string',
             'type' => 'required|in:Skripsi,Thesis,Disertasi,Jurnal,Buku,Artikel,Lainnya',
             'year' => 'required|integer|min:2000|max:' . (date('Y') + 5),
             'abstract' => 'required|string',
             'keywords' => 'required|string',
-            'supervisor_name' => 'required|string',
+            'supervisor_name' => $isAcademic ? 'required|string' : 'nullable|string',
             'files' => 'required|array|min:1',
             'files.*' => 'required|mimes:pdf|max:20480',
             'file_labels' => 'required|array|min:1',
+            // Extended Metadata Validation
+            'journal_name' => 'nullable|string',
+            'volume' => 'nullable|string',
+            'issue' => 'nullable|string',
+            'pages' => 'nullable|string',
+            'issn' => 'nullable|string',
+            'doi' => 'nullable|string',
+            'isbn' => 'nullable|string',
+            'publisher' => 'nullable|string',
+            'edition' => 'nullable|string',
         ]);
 
         $filesData = [];
@@ -305,6 +317,15 @@ class ThesisController extends Controller
             'abstract' => $request->abstract,
             'keywords' => $request->keywords,
             'supervisor_name' => $request->supervisor_name,
+            'journal_name' => $request->journal_name,
+            'volume' => $request->volume,
+            'issue' => $request->issue,
+            'pages' => $request->pages,
+            'issn' => $request->issn,
+            'doi' => $request->doi,
+            'isbn' => $request->isbn,
+            'publisher' => $request->publisher,
+            'edition' => $request->edition,
             'status' => 'pending', 
         ];
 
