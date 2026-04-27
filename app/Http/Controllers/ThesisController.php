@@ -250,10 +250,11 @@ class ThesisController extends Controller
             abort(403);
         }
 
-        $isThesisType = in_array($request->type, ['Skripsi', 'Thesis', 'Disertasi']);
+        $isAcademic = in_array($request->type, ['Skripsi', 'Thesis', 'Disertasi']);
+        $existingThesis = null;
 
-        // Check limits
-        if ($user->isMahasiswa() || ($user->isDosen() && $isThesisType)) {
+        // Check limits for Academic types
+        if ($user->isMahasiswa() || ($user->isDosen() && $isAcademic)) {
             $existingThesis = $user->theses()->whereIn('type', ['Skripsi', 'Thesis', 'Disertasi'])->first();
             if ($existingThesis && ($existingThesis->status === 'approved' || $existingThesis->status === 'pending')) {
                 return redirect()->route('dashboard')->with('error', 'Gagal: Anda sudah memiliki data karya ilmiah dalam proses atau sudah disetujui.');
