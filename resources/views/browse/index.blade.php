@@ -41,11 +41,12 @@
         font-size: 0.75rem; 
         letter-spacing: 0.08em;
         color: #1e293b !important;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
     }
+    .custom-accordion .accordion-button:hover { background: rgba(30, 58, 138, 0.03); color: var(--primary) !important; }
     .custom-accordion .accordion-button:not(.collapsed) { 
         color: var(--primary) !important; 
-        background: rgba(30, 58, 138, 0.02); 
+        background: rgba(30, 58, 138, 0.04); 
     }
     .custom-accordion .accordion-button::after { 
         background-size: 10px; 
