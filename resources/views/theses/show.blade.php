@@ -2,6 +2,37 @@
 
 @section('title', $thesis->title)
 
+@section('extra_meta')
+    <!-- Dublin Core Metadata Standard -->
+    <meta name="DC.title" content="{{ $thesis->title }}">
+    <meta name="DC.creator" content="{{ $thesis->user->name }}">
+    <meta name="DC.subject" content="{{ $thesis->keywords }}">
+    <meta name="DC.description" content="{{ Str::limit($thesis->abstract, 300) }}">
+    <meta name="DC.publisher" content="Universitas Islam Negeri Sultan Aji Muhammad Idris Samarinda">
+    <meta name="DC.contributor" content="{{ $thesis->supervisor_name }}">
+    <meta name="DC.date" content="{{ $thesis->year }}">
+    <meta name="DC.type" content="{{ $thesis->type }}">
+    <meta name="DC.format" content="application/pdf">
+    <meta name="DC.identifier" content="{{ url()->current() }}">
+    <meta name="DC.language" content="id">
+    
+    <!-- Highwire Press Tags (For Google Scholar) -->
+    <meta name="citation_title" content="{{ $thesis->title }}">
+    <meta name="citation_author" content="{{ $thesis->user->name }}">
+    <meta name="citation_publication_date" content="{{ $thesis->year }}">
+    <meta name="citation_pdf_url" content="{{ route('theses.download', $thesis->id) }}">
+    <meta name="citation_abstract_html_url" content="{{ url()->current() }}">
+    <meta name="citation_language" content="id">
+    <meta name="citation_keywords" content="{{ $thesis->keywords }}">
+
+    <!-- Open Graph (Social Media) -->
+    <meta property="og:title" content="{{ $thesis->title }}">
+    <meta property="og:description" content="{{ Str::limit($thesis->abstract, 200) }}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:site_name" content="{{ \App\Models\Setting::get('site_name', 'DigiRepo') }}">
+@endsection
+
 @section('styles')
 <style>
     .detail-hero {
