@@ -142,6 +142,32 @@ class ThesisController extends Controller
     /**
      * Download a specific file from the thesis files collection.
      */
+    /**
+     * Stream a specific file from the thesis files collection (for Admin Review).
+     */
+    public function streamFile(\App\Models\ThesisFile $file)
+    {
+        $thesis = $file->thesis;
+        $user = auth()->user();
+        $isOwner = auth()->check() && auth()->id() === $thesis->user_id;
+        $isAdmin = auth()->check() && $user && $user->isAdmin();
+
+        if ($thesis->status !== 'approved' && !$isOwner && !$isAdmin) {
+            abort(403);
+        }
+
+        $fullPath = Storage::disk('public')->path($file->file_path);
+        
+        if (!file_exists($fullPath)) {
+            abort(404, 'File fisik tidak ditemukan.');
+        }
+
+        return response()->file($fullPath, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . basename($file->file_path) . '"',
+        ]);
+    }
+
     public function downloadFile(\App\Models\ThesisFile $file)
     {
         $thesis = $file->thesis;

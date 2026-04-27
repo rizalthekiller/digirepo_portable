@@ -112,28 +112,38 @@
             <div class="modal-body p-5">
                 <div class="row g-4">
                     <div class="col-lg-6 d-flex align-items-stretch">
-                        <div class="w-100 p-5 rounded-4 text-center border d-flex flex-column justify-content-center align-items-center" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); min-height: 400px;">
-                            @if($thesis->file_path)
-                                <div class="mb-4 d-inline-block p-4 rounded-circle bg-white shadow-sm">
-                                    <i class="fas fa-file-pdf text-primary" style="font-size: 3rem; opacity: 0.8;"></i>
+                        <div class="w-100 p-5 rounded-4 border d-flex flex-column justify-content-center align-items-center" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); min-height: 400px;">
+                            @if($thesis->files->count() > 0)
+                                <h5 class="fw-zenith text-dark mb-4">Daftar Berkas Mahasiswa</h5>
+                                <div class="w-100 d-grid gap-2 overflow-auto" style="max-height: 300px; padding: 10px;">
+                                    @foreach($thesis->files as $file)
+                                        <div class="d-flex align-items-center justify-content-between p-3 bg-white rounded-3 shadow-sm border">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <i class="fas fa-file-pdf text-danger fs-4"></i>
+                                                <div class="text-start">
+                                                    <div class="fw-bold small text-dark line-clamp-1" title="{{ $file->label }}">{{ $file->label }}</div>
+                                                    <div class="text-muted" style="font-size: 0.65rem;">Format: PDF</div>
+                                                </div>
+                                            </div>
+                                            <a href="{{ route('theses.file.stream', $file->id) }}" target="_blank" data-turbo="false" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
+                                                <i class="fas fa-external-link-alt me-1"></i> BUKA
+                                            </a>
+                                        </div>
+                                    @endforeach
                                 </div>
-                                <h5 class="fw-zenith text-dark mb-2">Tinjau Dokumen</h5>
-                                <p class="text-muted small px-3 mb-4">
-                                    Klik tombol di bawah untuk memeriksa kesesuaian berkas skripsi.
+                                <p class="text-muted small mt-4 px-3 text-center">
+                                    <i class="fas fa-info-circle me-1"></i> Silakan periksa setiap bagian berkas sebelum memberikan persetujuan.
                                 </p>
-                                <a href="{{ route('theses.stream', $thesis->id) }}" target="_blank" data-turbo="false" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" style="background: var(--zenith-primary); border: none;">
-                                    <i class="fas fa-search-plus me-2"></i> BUKA PDF
-                                </a>
                             @else
                                 <div class="mb-4 d-inline-block p-4 rounded-circle bg-white shadow-sm">
                                     <i class="fas fa-hourglass-half text-warning animate-spin" style="font-size: 3rem;"></i>
                                 </div>
-                                <h5 class="fw-zenith text-warning mb-2">Proses Pemindahan File</h5>
-                                <p class="text-muted small px-3 mb-4">
-                                    Sistem sedang memindahkan file PDF ke folder permanen. Harap tunggu beberapa detik lalu refresh halaman ini.
+                                <h5 class="fw-zenith text-warning mb-2">Menunggu Berkas...</h5>
+                                <p class="text-muted small px-3 mb-4 text-center">
+                                    Berkas PDF sedang diproses oleh sistem atau belum diunggah dengan benar.
                                 </p>
-                                <button disabled class="btn btn-light rounded-pill px-4 fw-bold">
-                                    <i class="fas fa-spinner fa-spin me-2"></i> MENUNGGU FILE...
+                                <button onclick="window.location.reload()" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm">
+                                    <i class="fas fa-sync-alt me-2"></i> REFRESH HALAMAN
                                 </button>
                             @endif
                         </div>

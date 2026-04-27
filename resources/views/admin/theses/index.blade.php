@@ -198,37 +198,41 @@
                             }
                         @endphp
 
-                        <div class="bg-light rounded-4 p-5 w-100 h-100 text-center border d-flex flex-column justify-content-center align-items-center">
-                            <i class="fas fa-file-pdf text-danger display-2 mb-4"></i>
-                            <h5 class="fw-bold mb-2">File Dokumen</h5>
+                        <div class="bg-light rounded-4 p-4 w-100 h-100 text-center border d-flex flex-column justify-content-center align-items-center">
+                            <h5 class="fw-bold mb-4">Berkas Dokumen</h5>
                             
-                            @if($thesis->file_path && $fileExists)
-                                <p class="text-secondary mb-4 small" style="max-width: 250px;">Dokumen tersedia. Klik untuk membuka atau gunakan tombol ganti di bawah.</p>
-                                <div class="d-grid gap-2">
-                                    <a href="{{ route('theses.stream', $thesis->id) }}" target="_blank" data-turbo="false" class="btn btn-danger rounded-pill px-5 py-3 fw-bold shadow-sm">
-                                        <i class="fas fa-external-link-alt me-2"></i> BUKA PDF
-                                    </a>
-                                    
-                                    <form action="{{ route('admin.theses.upload_file', $thesis->id) }}" method="POST" enctype="multipart/form-data">
-                                        @csrf
-                                        <label class="btn btn-outline-secondary btn-sm rounded-pill px-4 py-2 mt-2 cursor-pointer border-dashed">
-                                            <i class="fas fa-sync-alt me-1"></i> Ganti File
-                                            <input type="file" name="pdf_file" class="d-none" onchange="this.form.submit()" accept=".pdf">
-                                        </label>
-                                    </form>
-                                </div>
-                            @else
-                                <p class="text-danger mb-4 small fw-bold" style="max-width: 250px;">
-                                    <i class="fas fa-exclamation-triangle me-1"></i> File fisik tidak ditemukan.
-                                </p>
-                                <form action="{{ route('admin.theses.upload_file', $thesis->id) }}" method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                    <label class="btn btn-primary rounded-pill px-5 py-3 fw-bold shadow-lg cursor-pointer" style="background: var(--zenith-primary); border: none;">
-                                        <i class="fas fa-upload me-2"></i> UNGGAH PDF
-                                        <input type="file" name="pdf_file" class="d-none" onchange="this.form.submit()" accept=".pdf">
-                                    </label>
-                                </form>
-                            @endif
+                            <div class="w-100 d-grid gap-2 overflow-auto" style="max-height: 400px;">
+                                @forelse($thesis->files as $file)
+                                    <div class="d-flex align-items-center justify-content-between p-3 bg-white rounded-3 shadow-sm border">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <i class="fas fa-file-pdf text-danger fs-4"></i>
+                                            <div class="text-start">
+                                                <div class="fw-bold small text-dark line-clamp-1">{{ $file->label }}</div>
+                                                <div class="text-muted" style="font-size: 0.6rem;">Terverifikasi</div>
+                                            </div>
+                                        </div>
+                                        <a href="{{ route('theses.file.stream', $file->id) }}" target="_blank" data-turbo="false" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold">
+                                            BUKA
+                                        </a>
+                                    </div>
+                                @empty
+                                    <div class="py-4 text-muted">
+                                        <i class="fas fa-exclamation-triangle mb-2 d-block"></i>
+                                        <small>Tidak ada berkas fisik.</small>
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            <hr class="w-100 my-4 opacity-10">
+                            
+                            <form action="{{ route('admin.theses.upload_file', $thesis->id) }}" method="POST" enctype="multipart/form-data" class="w-100">
+                                @csrf
+                                <p class="small text-muted mb-3">Tambah atau Ganti Berkas Utama:</p>
+                                <label class="btn btn-primary rounded-pill w-100 py-3 fw-bold shadow-lg cursor-pointer" style="background: var(--zenith-primary); border: none;">
+                                    <i class="fas fa-plus-circle me-2"></i> TAMBAH BERKAS PDF
+                                    <input type="file" name="pdf_file" class="d-none" onchange="this.form.submit()" accept=".pdf">
+                                </label>
+                            </form>
                         </div>
                     </div>
                     <div class="col-lg-7">
