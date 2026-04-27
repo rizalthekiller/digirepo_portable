@@ -73,6 +73,7 @@
                     <th>DETAIL DOKUMEN</th>
                     <th>PENULIS</th>
                     <th>PRODI</th>
+                    <th>UNDUHAN</th>
                     <th>STATUS</th>
                     <th class="text-center">AKSI</th>
                 </tr>
@@ -99,6 +100,9 @@
                     </td>
                     <td>
                         <div class="fw-700 text-dark">{{ $thesis->user?->department?->name ?? '-' }}</div>
+                    </td>
+                    <td class="text-center">
+                        <span class="fw-800 text-primary">{{ number_format($thesis->downloads_count) }}</span>
                     </td>
                     <td>
                         @if($thesis->status == 'pending')

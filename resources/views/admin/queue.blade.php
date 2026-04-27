@@ -157,6 +157,14 @@
                                 </div>
                                 @endif
                                 
+                                <div class="mb-4">
+                                    <label class="info-label-premium">Masa Embargo (Kosongkan jika tidak ada)</label>
+                                    <input type="date" name="embargo_until" class="form-control border-0 p-3 rounded-3 shadow-sm">
+                                    <div class="form-text mt-2" style="font-size: 0.7rem;">
+                                        File tidak akan bisa diunduh/dibaca publik hingga tanggal terpilih.
+                                    </div>
+                                </div>
+
                                 <div class="mt-auto">
                                     <button type="submit" class="btn btn-success w-100 rounded-pill py-3 fw-bold shadow-lg mb-3" {{ !$thesis->file_path ? 'disabled' : '' }}>
                                         <i class="fas fa-check-circle me-2"></i> 

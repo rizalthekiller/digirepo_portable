@@ -30,7 +30,7 @@ class Thesis extends Model
         'supervisor_name', 'type', 'file_path', 'status', 
         'rejection_reason', 'was_rejected', 'certificate_number', 
         'verification_hash', 'certificate_content', 'delivery_status', 
-        'is_watermarked', 'certificate_date'
+        'is_watermarked', 'certificate_date', 'embargo_until'
     ];
 
     /**
@@ -64,5 +64,13 @@ class Thesis extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the downloads for the thesis.
+     */
+    public function downloads()
+    {
+        return $this->hasMany(Download::class);
     }
 }

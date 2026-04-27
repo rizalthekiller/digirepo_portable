@@ -196,7 +196,7 @@ class AdminController extends Controller
      */
     public function theses(Request $request)
     {
-        $query = Thesis::with('user.department');
+        $query = Thesis::with('user.department')->withCount('downloads');
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -529,6 +529,7 @@ class AdminController extends Controller
             'certificate_content' => $certContent,
             'certificate_date' => now(),
             'verification_hash' => bin2hex(random_bytes(16)),
+            'embargo_until' => $request->embargo_until,
         ]);
 
         // Trigger Student Notification

@@ -38,6 +38,12 @@ class ThesisController extends Controller
         if ($thesis->status !== 'approved' && !$isOwner && !$isAdmin) {
             abort(403, 'Anda tidak memiliki akses ke dokumen ini.');
         }
+
+        // Embargo Check
+        if ($thesis->embargo_until && now()->lt($thesis->embargo_until) && !$isOwner && !$isAdmin) {
+            return redirect()->route('theses.show', $thesis->id)->with('error', 'Maaf, dokumen ini sedang dalam masa embargo hingga ' . \Carbon\Carbon::parse($thesis->embargo_until)->format('d M Y'));
+        }
+
         return view('theses.view', compact('thesis'));
     }
 
@@ -52,6 +58,11 @@ class ThesisController extends Controller
 
         if ($thesis->status !== 'approved' && !$isOwner && !$isAdmin) {
             abort(403, 'Anda tidak memiliki akses ke dokumen ini.');
+        }
+
+        // Embargo Check (Double check for security)
+        if ($thesis->embargo_until && now()->lt($thesis->embargo_until) && !$isOwner && !$isAdmin) {
+            abort(403, 'Dokumen sedang dalam masa embargo.');
         }
 
         $cleanPath = $thesis->file_path;
@@ -102,7 +113,30 @@ class ThesisController extends Controller
             abort(403);
         }
 
-        return Storage::disk('public')->download($thesis->file_path, "{$thesis->title}.pdf");
+        // Embargo Check
+        if ($thesis->embargo_until && now()->lt($thesis->embargo_until) && !$isOwner && !$isAdmin) {
+            abort(403, 'Gagal: Dokumen dalam masa embargo.');
+        }
+
+        // Record Statistics
+        \App\Models\Download::create([
+            'thesis_id' => $thesis->id,
+            'user_id' => auth()->id(),
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        // Clean Path logic for download
+        $cleanPath = $thesis->file_path;
+        $prefixes = ['/storage/', 'storage/', '/public/', 'public/'];
+        foreach ($prefixes as $prefix) {
+            if (str_starts_with($cleanPath, $prefix)) {
+                $cleanPath = substr($cleanPath, strlen($prefix));
+            }
+        }
+        $cleanPath = ltrim($cleanPath, '/');
+
+        return Storage::disk('public')->download($cleanPath, "{$thesis->title}.pdf");
     }
 
     /**
