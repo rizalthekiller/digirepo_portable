@@ -21,8 +21,16 @@
     .pagination .page-item.active .page-link { background: var(--primary-gradient); color: white; box-shadow: 0 10px 20px rgba(30, 58, 138, 0.2); }
     .text-truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.6; }
     
-    .custom-radio .form-check-label { color: #64748b; border-color: #e2e8f0 !important; }
-    .custom-radio .form-check-input:checked + .form-check-label { background: var(--primary-gradient); color: white; border-color: transparent !important; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15); }
+    .custom-filter-radio .form-check-label { color: #64748b; border: 1px solid #e2e8f0 !important; background: #fff; }
+    .custom-filter-radio .form-check-input:checked + .form-check-label { 
+        background: rgba(79, 70, 229, 0.05); 
+        color: var(--primary); 
+        border-color: var(--primary) !important; 
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08); 
+    }
+    .custom-filter-radio .form-check-input:checked + .form-check-label .check-icon { opacity: 1 !important; }
+    .custom-filter-radio .form-check-input:checked + .form-check-label i:first-child { opacity: 1 !important; color: var(--primary); }
+    
     .form-control-premium:focus, .form-select-premium:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.05); }
     
     .form-select-premium {
@@ -137,16 +145,25 @@
                         <label class="form-label extra-small fw-800 text-uppercase text-secondary mb-3" style="letter-spacing: 0.1em;">
                             <i class="fas fa-tags me-1"></i> Tipe Dokumen
                         </label>
-                        <div class="row g-2">
+                        <div class="d-grid gap-2">
                             @foreach($types as $t)
-                            <div class="col-6">
-                                <div class="form-check custom-radio">
+                                @php
+                                    $icon = 'fa-file-alt';
+                                    if(Str::contains($t->name, ['Skripsi', 'Tesis', 'Disertasi'])) $icon = 'fa-graduation-cap';
+                                    if(Str::contains($t->name, 'Buku')) $icon = 'fa-book';
+                                    if(Str::contains($t->name, 'Jurnal')) $icon = 'fa-journal-whills';
+                                    if(Str::contains($t->name, 'Artikel')) $icon = 'fa-newspaper';
+                                @endphp
+                                <div class="form-check custom-filter-radio">
                                     <input class="form-check-input d-none" type="radio" name="type" value="{{ $t->name }}" id="type{{ $t->id }}" {{ request('type') == $t->name ? 'checked' : '' }}>
-                                    <label class="form-check-label py-2 px-1 border rounded-3 w-100 text-center cursor-pointer transition-all fw-bold" style="font-size: 0.7rem;" for="type{{ $t->id }}">
-                                        {{ $t->name }}
+                                    <label class="form-check-label d-flex align-items-center justify-content-between py-2 px-3 border rounded-3 w-100 cursor-pointer transition-all" for="type{{ $t->id }}">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fas {{ $icon }} opacity-50" style="width: 20px;"></i>
+                                            <span class="fw-bold" style="font-size: 0.8rem;">{{ $t->name }}</span>
+                                        </div>
+                                        <i class="fas fa-check-circle check-icon opacity-0" style="font-size: 0.8rem;"></i>
                                     </label>
                                 </div>
-                            </div>
                             @endforeach
                         </div>
                     </div>
