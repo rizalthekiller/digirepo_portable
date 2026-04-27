@@ -338,7 +338,7 @@
                         </span>
                     @else
                         <a href="{{ route('theses.create') }}" class="zenith-nav-link {{ Request::is('theses/upload') ? 'active' : '' }}">
-                            <i class="fas fa-cloud-upload-alt"></i> Unggah Skripsi
+                            <i class="fas fa-cloud-upload-alt"></i> {{ Auth::user()->isDosen() ? 'Unggah Karya Tulis' : 'Unggah Skripsi' }}
                         </a>
                     @endif
                 @endif

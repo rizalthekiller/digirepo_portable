@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('page_title', 'Unggah Karya Ilmiah')
+@section('page_title', Auth::user()->isDosen() ? 'Unggah Karya Tulis' : 'Unggah Karya Ilmiah')
 
 @section('content')
 <div class="row justify-content-center">
@@ -11,7 +11,7 @@
                     <i class="fas fa-file-upload fa-lg"></i>
                 </div>
                 <div class="ms-4">
-                    <h4 class="fw-zenith mb-1">{{ isset($existingThesis) ? 'Revisi Karya Ilmiah' : 'Unggah Karya Ilmiah Baru' }}</h4>
+                    <h4 class="fw-zenith mb-1">{{ isset($existingThesis) ? 'Revisi Karya' : (Auth::user()->isDosen() ? 'Unggah Karya Tulis Baru' : 'Unggah Karya Ilmiah Baru') }}</h4>
                     <p class="text-muted small mb-0">Pastikan dokumen dalam format PDF dan sesuai dengan template institusi.</p>
                 </div>
             </div>
