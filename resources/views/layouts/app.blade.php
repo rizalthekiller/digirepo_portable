@@ -340,7 +340,7 @@
             <div class="row g-5">
                 <div class="col-lg-5">
                     <h2 class="text-white fw-800 mb-4" style="letter-spacing: -1px;">DigiRepo<span class="text-primary-light">.</span></h2>
-                    <p class="mb-4 pe-lg-5">Sistem Repositori Digital Perpustakaan Modern yang dirancang untuk mendukung ekosistem literasi digital yang terintegrasi, aman, dan mudah diakses.</p>
+                    <p class="mb-4 pe-lg-5 text-white-50">Sistem Repositori Digital Perpustakaan Modern yang dirancang untuk mendukung ekosistem literasi digital yang terintegrasi, aman, dan mudah diakses.</p>
                     <div class="d-flex gap-3">
                         @foreach(['facebook-f', 'twitter', 'instagram', 'linkedin-in'] as $social)
                             <a href="#" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center shadow-none" style="width: 40px; height: 40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
@@ -352,23 +352,23 @@
                 <div class="col-lg-2">
                     <h6 class="text-white fw-800 mb-4 text-uppercase small" style="letter-spacing: 0.1em;">Tautan Cepat</h6>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="/" class="text-decoration-none text-secondary hover-text-white transition-all">Beranda</a></li>
-                        <li class="mb-2"><a href="/browse" class="text-decoration-none text-secondary hover-text-white transition-all">Jelajahi</a></li>
-                        <li class="mb-2"><a href="/faq" class="text-decoration-none text-secondary hover-text-white transition-all">Bantuan & FAQ</a></li>
+                        <li class="mb-2"><a href="/" class="text-decoration-none text-white-50 hover-text-white transition-all">Beranda</a></li>
+                        <li class="mb-2"><a href="/browse" class="text-decoration-none text-white-50 hover-text-white transition-all">Jelajahi</a></li>
+                        <li class="mb-2"><a href="/faq" class="text-decoration-none text-white-50 hover-text-white transition-all">Bantuan & FAQ</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2">
                     <h6 class="text-white fw-800 mb-4 text-uppercase small" style="letter-spacing: 0.1em;">Koleksi</h6>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="/browse?type=Skripsi" class="text-decoration-none text-secondary hover-text-white transition-all">Skripsi</a></li>
-                        <li class="mb-2"><a href="/browse?type=Thesis" class="text-decoration-none text-secondary hover-text-white transition-all">Thesis</a></li>
-                        <li class="mb-2"><a href="/browse?type=Disertasi" class="text-decoration-none text-secondary hover-text-white transition-all">Disertasi</a></li>
+                        <li class="mb-2"><a href="/browse?type=Skripsi" class="text-decoration-none text-white-50 hover-text-white transition-all">Skripsi</a></li>
+                        <li class="mb-2"><a href="/browse?type=Thesis" class="text-decoration-none text-white-50 hover-text-white transition-all">Thesis</a></li>
+                        <li class="mb-2"><a href="/browse?type=Disertasi" class="text-decoration-none text-white-50 hover-text-white transition-all">Disertasi</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-3">
                     <h6 class="text-white fw-800 mb-4 text-uppercase small" style="letter-spacing: 0.1em;">Kontak Kami</h6>
-                    <p class="small mb-2"><i class="fas fa-map-marker-alt me-2 text-primary-light"></i> Gedung Perpustakaan Pusat, Lantai 2</p>
-                    <p class="small mb-2"><i class="fas fa-envelope me-2 text-primary-light"></i> library@institution.ac.id</p>
+                    <p class="small mb-2 text-white-50"><i class="fas fa-map-marker-alt me-2 text-primary-light"></i> Gedung Perpustakaan Pusat, Lantai 2</p>
+                    <p class="small mb-2 text-white-50"><i class="fas fa-envelope me-2 text-primary-light"></i> library@institution.ac.id</p>
                 </div>
             </div>
             <hr class="my-5 opacity-5">
