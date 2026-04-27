@@ -4,6 +4,17 @@
 
 @section('styles')
 <style>
+    :root {
+        --primary: #1e3a8a;        /* Navy Blue */
+        --primary-light: #3b82f6;  /* Blue Accent */
+        --primary-gradient: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    }
+
+    .btn-primary { background: var(--primary) !important; border-color: var(--primary) !important; }
+    .btn-primary:hover { background: #172554 !important; border-color: #172554 !important; }
+    .btn-outline-primary { border-color: var(--primary); color: var(--primary); }
+    .btn-outline-primary:hover, .btn-check:checked + .btn-outline-primary { background-color: var(--primary) !important; border-color: var(--primary) !important; color: white !important; }
+
     .filter-card { 
         position: sticky; 
         top: 120px; 
