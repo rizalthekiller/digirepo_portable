@@ -125,6 +125,68 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Edit Profil -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 30px;">
+            <div class="modal-body p-5">
+                <div class="text-center mb-4">
+                    <h4 class="fw-800 mb-1">Edit Profil</h4>
+                    <p class="text-muted small">Perbarui informasi identitas Anda</p>
+                </div>
+                <form action="{{ route('profile.update') }}" method="POST">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted">NAMA LENGKAP</label>
+                        <input type="text" name="name" class="form-control rounded-pill px-4 py-2 bg-light border-0" value="{{ Auth::user()->name }}" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted">NIM / NOMOR IDENTITAS</label>
+                        <input type="text" name="nim" class="form-control rounded-pill px-4 py-2 bg-light border-0" value="{{ Auth::user()->nim }}" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary rounded-pill py-3 fw-bold">SIMPAN PERUBAHAN</button>
+                        <button type="button" class="btn btn-link text-muted fw-bold text-decoration-none" data-bs-dismiss="modal">BATAL</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ganti Kata Sandi -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 30px;">
+            <div class="modal-body p-5">
+                <div class="text-center mb-4">
+                    <h4 class="fw-800 mb-1">Ganti Kata Sandi</h4>
+                    <p class="text-muted small">Gunakan kata sandi yang kuat dan unik</p>
+                </div>
+                <form action="{{ route('profile.password') }}" method="POST">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted">KATA SANDI SEKARANG</label>
+                        <input type="password" name="current_password" class="form-control rounded-pill px-4 py-2 bg-light border-0" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted">KATA SANDI BARU</label>
+                        <input type="password" name="password" class="form-control rounded-pill px-4 py-2 bg-light border-0" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted">KONFIRMASI KATA SANDI BARU</label>
+                        <input type="password" name="password_confirmation" class="form-control rounded-pill px-4 py-2 bg-light border-0" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-dark rounded-pill py-3 fw-bold">UPDATE KATA SANDI</button>
+                        <button type="button" class="btn btn-link text-muted fw-bold text-decoration-none" data-bs-dismiss="modal">BATAL</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
