@@ -45,11 +45,16 @@ class ThesisNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $user = $this->thesis->user;
+        $roleLabel = $user->isDosen() ? 'Dosen' : 'Mahasiswa';
+        $docLabel = $user->isDosen() ? 'Karya Tulis' : 'Skripsi';
+        $encouragement = $user->isDosen() ? 'Semoga bermanfaat bagi kemajuan ilmu pengetahuan.' : 'Semangat dalam menyelesaikan tugas akhir Anda.';
+
         if ($this->type === 'submitted') {
             return (new MailMessage)
-                ->subject('Pengajuan Skripsi Baru: ' . $this->thesis->title)
+                ->subject('Pengajuan ' . $docLabel . ' Baru: ' . $this->thesis->title)
                 ->greeting('Halo Admin,')
-                ->line('Mahasiswa ' . $this->thesis->user->name . ' baru saja mengunggah skripsi baru.')
+                ->line($roleLabel . ' ' . $user->name . ' baru saja mengunggah ' . strtolower($docLabel) . ' baru.')
                 ->line('Judul: ' . $this->thesis->title)
                 ->action('Tinjau Pengajuan', route('admin.queue'))
                 ->line('Silakan lakukan verifikasi dokumen tersebut.');
@@ -57,9 +62,9 @@ class ThesisNotification extends Notification implements ShouldQueue
 
         if ($this->type === 'approved') {
             return (new MailMessage)
-                ->subject('Skripsi Anda Telah Disetujui!')
-                ->greeting('Selamat ' . $this->thesis->user->name . '!')
-                ->line('Skripsi Anda yang berjudul "' . $this->thesis->title . '" telah berhasil diverifikasi dan disetujui oleh Admin Perpustakaan.')
+                ->subject($docLabel . ' Anda Telah Disetujui!')
+                ->greeting('Selamat ' . $user->name . '!')
+                ->line($docLabel . ' Anda yang berjudul "' . $this->thesis->title . '" telah berhasil diverifikasi dan disetujui oleh Admin Perpustakaan.')
                 ->line('Sertifikat keterangan unggah telah diterbitkan.')
                 ->action('Download Sertifikat', route('theses.certificate', $this->thesis->id))
                 ->line('Terima kasih telah menggunakan layanan DigiRepo.');
@@ -67,17 +72,17 @@ class ThesisNotification extends Notification implements ShouldQueue
 
         if ($this->type === 'rejected') {
             return (new MailMessage)
-                ->subject('Update Status Pengajuan Skripsi')
-                ->greeting('Halo ' . $this->thesis->user->name . ',')
-                ->line('Mohon maaf, pengajuan skripsi Anda yang berjudul "' . $this->thesis->title . '" perlu diperbaiki atau ditolak.')
+                ->subject('Update Status Pengajuan ' . $docLabel)
+                ->greeting('Halo ' . $user->name . ',')
+                ->line('Mohon maaf, pengajuan ' . strtolower($docLabel) . ' Anda yang berjudul "' . $this->thesis->title . '" perlu diperbaiki atau ditolak.')
                 ->line('Silakan cek dashboard untuk melihat alasan penolakan dan lakukan unggah ulang jika diperlukan.')
                 ->action('Cek Dashboard', route('dashboard'))
-                ->line('Semangat dalam menyelesaikan tugas akhir Anda.');
+                ->line($encouragement);
         }
 
         return (new MailMessage)
             ->subject('Pemberitahuan Sistem DigiRepo')
-            ->line('Terdapat pembaruan pada status pengajuan skripsi Anda.')
+            ->line('Terdapat pembaruan pada status pengajuan ' . strtolower($docLabel) . ' Anda.')
             ->action('Buka Dashboard', route('dashboard'));
     }
 
@@ -108,17 +113,21 @@ class ThesisNotification extends Notification implements ShouldQueue
 
     protected function getMessage()
     {
+        $user = $this->thesis->user;
+        $roleLabel = $user->isDosen() ? 'Dosen' : 'Mahasiswa';
+        $docLabel = $user->isDosen() ? 'karya tulis' : 'skripsi';
+
         switch ($this->type) {
             case 'submitted':
-                return "Mahasiswa {$this->thesis->user->name} mengunggah skripsi baru.";
+                return "{$roleLabel} {$user->name} mengunggah {$docLabel} baru.";
             case 'resubmitted':
-                return "Mahasiswa {$this->thesis->user->name} telah mengunggah revisi skripsi.";
+                return "{$roleLabel} {$user->name} telah mengunggah revisi {$docLabel}.";
             case 'approved':
-                return "Skripsi Anda '{$this->thesis->title}' telah disetujui.";
+                return ucfirst($docLabel) . " Anda '{$this->thesis->title}' telah disetujui.";
             case 'rejected':
-                return "Skripsi Anda '{$this->thesis->title}' perlu diperbaiki.";
+                return ucfirst($docLabel) . " Anda '{$this->thesis->title}' perlu diperbaiki.";
             default:
-                return "Ada pembaruan pada status skripsi.";
+                return "Ada pembaruan pada status {$docLabel}.";
         }
     }
 }

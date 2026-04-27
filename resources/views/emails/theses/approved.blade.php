@@ -1,13 +1,18 @@
 <x-mail::message>
 # Halo, {{ $thesis->user->name }}!
 
-Selamat! Skripsi Anda telah disetujui oleh admin.
+@php
+    $docLabel = $thesis->user->isDosen() ? 'Karya Tulis' : 'Skripsi';
+@endphp
+# Halo, {{ $thesis->user->name }}!
 
-**Detail Skripsi:**
+Selamat! {{ $docLabel }} Anda telah disetujui oleh admin.
+
+**Detail {{ $docLabel }}:**
 - **Judul:** {{ $thesis->title }}
 - **Nomor Sertifikat:** {{ $thesis->certificate_number }}
 
-Anda sekarang dapat mengunduh Sertifikat Penyerahan Skripsi secara resmi melalui tautan di bawah ini:
+Anda sekarang dapat mengunduh Sertifikat Penyerahan {{ $docLabel }} secara resmi melalui tautan di bawah ini:
 
 <x-mail::button :url="route('theses.certificate', $thesis->id)">
 Download Sertifikat

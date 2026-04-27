@@ -31,8 +31,9 @@ class ThesisApprovedMail extends Mailable
      */
     public function envelope(): Envelope
     {
+        $docLabel = $this->thesis->user->isDosen() ? 'Karya Tulis' : 'Skripsi';
         return new Envelope(
-            subject: 'Skripsi Disetujui - ' . $this->thesis->title,
+            subject: $docLabel . ' Disetujui - ' . $this->thesis->title,
         );
     }
 
