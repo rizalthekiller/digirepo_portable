@@ -20,6 +20,10 @@
     .pagination .page-link { border: none; border-radius: 12px; margin: 0 4px; font-weight: 700; color: var(--secondary); padding: 12px 18px; }
     .pagination .page-item.active .page-link { background: var(--primary-gradient); color: white; box-shadow: 0 10px 20px rgba(30, 58, 138, 0.2); }
     .text-truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.6; }
+    
+    .custom-radio .form-check-label { color: #64748b; border-color: #e2e8f0 !important; }
+    .custom-radio .form-check-input:checked + .form-check-label { background: var(--primary-gradient); color: white; border-color: transparent !important; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15); }
+    .form-control-premium:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.05); }
 </style>
 @endsection
 
@@ -47,12 +51,35 @@
                     </div>
 
                     <div class="mb-4">
+                        <label class="form-label small fw-800 text-uppercase opacity-50" style="letter-spacing: 0.1em;">Program Studi</label>
+                        <select name="department" class="form-control-premium w-100">
+                            <option value="">Semua Program Studi</option>
+                            @foreach($faculties as $f)
+                                <optgroup label="{{ $f->name }}">
+                                    @foreach($departments->where('faculty_id', $f->id) as $d)
+                                        <option value="{{ $d->id }}" {{ request('department') == $d->id ? 'selected' : '' }}>{{ $d->name }}</option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
                         <label class="form-label small fw-800 text-uppercase opacity-50" style="letter-spacing: 0.1em;">Tahun</label>
                         <select name="year" class="form-control-premium w-100">
                             <option value="">Semua Tahun</option>
                             @foreach($years as $y)
                                 <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
                             @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-800 text-uppercase opacity-50" style="letter-spacing: 0.1em;">Urutkan Berdasarkan</label>
+                        <select name="sort" class="form-control-premium w-100">
+                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
+                            <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Terlama</option>
+                            <option value="title" {{ request('sort') == 'title' ? 'selected' : '' }}>Judul (A-Z)</option>
                         </select>
                     </div>
 
@@ -68,17 +95,25 @@
 
                     <div class="mb-5">
                         <label class="form-label small fw-800 text-uppercase opacity-50 mb-3" style="letter-spacing: 0.1em;">Tipe Dokumen</label>
-                        @foreach($types as $t)
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="type" value="{{ $t->name }}" id="type{{ $t->id }}" {{ request('type') == $t->name ? 'checked' : '' }}>
-                            <label class="form-check-label small fw-600" for="type{{ $t->id }}">{{ $t->name }}</label>
+                        <div class="d-grid gap-2">
+                            @foreach($types as $t)
+                            <div class="form-check custom-radio">
+                                <input class="form-check-input d-none" type="radio" name="type" value="{{ $t->name }}" id="type{{ $t->id }}" {{ request('type') == $t->name ? 'checked' : '' }}>
+                                <label class="form-check-label py-2 px-3 border rounded-3 w-100 text-center cursor-pointer transition-all small fw-bold" for="type{{ $t->id }}">
+                                    {{ $t->name }}
+                                </label>
+                            </div>
+                            @endforeach
                         </div>
-                        @endforeach
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 mb-3">Terapkan Filter</button>
-                    @if(request()->hasAny(['q', 'faculty', 'year', 'type', 'author', 'supervisor']))
-                        <a href="{{ url('/browse') }}" class="btn btn-light w-100 rounded-pill fw-bold text-muted small py-2">Reset Filter</a>
+                    <button type="submit" class="btn btn-primary w-100 mb-3 py-3 shadow-lg">
+                        <i class="fas fa-search me-2"></i> CARI KOLEKSI
+                    </button>
+                    @if(request()->hasAny(['q', 'faculty', 'department', 'year', 'type', 'author', 'supervisor', 'sort']))
+                        <a href="{{ url('/browse') }}" class="btn btn-link w-100 text-muted small text-decoration-none fw-bold">
+                            <i class="fas fa-sync-alt me-1"></i> Reset Semua Filter
+                        </a>
                     @endif
                 </form>
             </div>
@@ -86,13 +121,16 @@
 
         <!-- Main Content -->
         <div class="col-lg-9">
-            <div class="d-flex justify-content-between align-items-center mb-5 animate-fade-in">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 animate-fade-in gap-3">
                 <div>
                     <h2 class="fw-800 mb-1">Hasil Penelusuran</h2>
-                    <p class="text-secondary small mb-0">Menampilkan hasil pencarian koleksi repositori digital.</p>
+                    <p class="text-secondary small mb-0">Ditemukan <span class="text-primary fw-bold">{{ $theses->total() }} dokumen</span> yang sesuai kriteria.</p>
                 </div>
-                <div class="bg-light px-3 py-2 rounded-pill small fw-800 text-secondary">
-                    {{ $theses->total() }} DOKUMEN
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-muted extra-small fw-800 text-uppercase opacity-50">Tampilan Terpilih</span>
+                    <div class="bg-white p-1 rounded-pill shadow-sm border d-flex">
+                        <button class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" style="font-size: 0.7rem;">List View</button>
+                    </div>
                 </div>
             </div>
 

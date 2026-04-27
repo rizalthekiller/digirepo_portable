@@ -30,6 +30,13 @@ class BrowseController extends Controller
             });
         }
 
+        // Filter by Department (Prodi)
+        if ($request->filled('department')) {
+            $query->whereHas('user.department', function($q) use ($request) {
+                $q->where('id', $request->department);
+            });
+        }
+
         // Filter by Author (User Name)
         if ($request->filled('author')) {
             $author = $request->author;
@@ -54,11 +61,21 @@ class BrowseController extends Controller
             $query->where('year', $request->year);
         }
 
-        $theses = $query->latest()->paginate(12)->withQueryString();
-        $faculties = Faculty::all();
-        $types = ThesisType::all();
-        $years = Thesis::select('year')->distinct()->orderBy('year', 'desc')->pluck('year');
+        // Sorting Logic
+        $sort = $request->get('sort', 'newest');
+        switch ($sort) {
+            case 'oldest': $query->orderBy('year', 'asc'); break;
+            case 'title': $query->orderBy('title', 'asc'); break;
+            case 'newest': 
+            default: $query->latest(); break;
+        }
 
-        return view('browse.index', compact('theses', 'faculties', 'years', 'types'));
+        $theses = $query->paginate(12)->withQueryString();
+        $faculties = Faculty::all();
+        $departments = \App\Models\Department::orderBy('name')->get();
+        $types = ThesisType::all();
+        $years = Thesis::where('status', 'approved')->select('year')->distinct()->orderBy('year', 'desc')->pluck('year');
+
+        return view('browse.index', compact('theses', 'faculties', 'departments', 'years', 'types'));
     }
 }
