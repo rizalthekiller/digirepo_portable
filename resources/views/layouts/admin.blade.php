@@ -145,7 +145,7 @@
         .zenith-navbar {
             position: sticky;
             top: 0;
-            z-index: 1100;
+            z-index: 1000;
             display: flex;
             justify-content: space-between;
             align-items: center;
