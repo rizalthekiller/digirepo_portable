@@ -23,7 +23,26 @@
     
     .custom-radio .form-check-label { color: #64748b; border-color: #e2e8f0 !important; }
     .custom-radio .form-check-input:checked + .form-check-label { background: var(--primary-gradient); color: white; border-color: transparent !important; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15); }
-    .form-control-premium:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.05); }
+    .form-control-premium:focus, .form-select-premium:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.05); }
+    
+    .form-select-premium {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        line-height: 1.5;
+        color: #334155;
+        background-color: #f8fafc;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 12px 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 15px;
+        transition: all 0.2s ease-in-out;
+        appearance: none;
+    }
 </style>
 @endsection
 
@@ -32,89 +51,116 @@
     <div class="row g-5">
         <!-- Sidebar Filter -->
         <div class="col-lg-3">
-            <div class="glass-card filter-card animate-fade-in">
-                <h5 class="fw-800 mb-4 text-dark">Filter Koleksi</h5>
+            <div class="glass-card filter-card animate-fade-in p-4" style="border-radius: 25px;">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary">
+                        <i class="fas fa-filter"></i>
+                    </div>
+                    <h5 class="fw-800 mb-0 text-dark">Filter Koleksi</h5>
+                </div>
+
                 <form action="{{ url('/browse') }}" method="GET">
+                    <!-- Section: Pencarian -->
                     <div class="mb-4">
-                        <label class="form-label small fw-800 text-uppercase opacity-50" style="letter-spacing: 0.1em;">Pencarian</label>
-                        <input type="text" name="q" class="form-control-premium w-100" placeholder="Judul / Abstrak..." value="{{ request('q') }}">
+                        <label class="form-label extra-small fw-800 text-uppercase text-primary mb-2" style="letter-spacing: 0.1em;">
+                            <i class="fas fa-search me-1"></i> Kata Kunci
+                        </label>
+                        <input type="text" name="q" class="form-control-premium w-100" placeholder="Judul, abstrak..." value="{{ request('q') }}">
                     </div>
 
+                    <hr class="my-4 opacity-10">
+
+                    <!-- Section: Akademik -->
                     <div class="mb-4">
-                        <label class="form-label small fw-800 text-uppercase opacity-50" style="letter-spacing: 0.1em;">Fakultas</label>
-                        <select name="faculty" class="form-control-premium w-100">
-                            <option value="">Semua Fakultas</option>
-                            @foreach($faculties as $f)
-                                <option value="{{ $f->id }}" {{ request('faculty') == $f->id ? 'selected' : '' }}>{{ $f->name }}</option>
-                            @endforeach
-                        </select>
+                        <label class="form-label extra-small fw-800 text-uppercase text-secondary mb-2" style="letter-spacing: 0.1em;">
+                            <i class="fas fa-university me-1"></i> Kategori Akademik
+                        </label>
+                        <div class="d-grid gap-3">
+                            <select name="faculty" class="form-select-premium w-100">
+                                <option value="">Semua Fakultas</option>
+                                @foreach($faculties as $f)
+                                    <option value="{{ $f->id }}" {{ request('faculty') == $f->id ? 'selected' : '' }}>{{ $f->name }}</option>
+                                @endforeach
+                            </select>
+
+                            <select name="department" class="form-select-premium w-100">
+                                <option value="">Semua Program Studi</option>
+                                @foreach($faculties as $f)
+                                    <optgroup label="{{ $f->name }}">
+                                        @foreach($departments->where('faculty_id', $f->id) as $d)
+                                            <option value="{{ $d->id }}" {{ request('department') == $d->id ? 'selected' : '' }}>{{ $d->name }}</option>
+                                        @endforeach
+                                    </optgroup>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
+                    <hr class="my-4 opacity-10">
+
+                    <!-- Section: Detail -->
                     <div class="mb-4">
-                        <label class="form-label small fw-800 text-uppercase opacity-50" style="letter-spacing: 0.1em;">Program Studi</label>
-                        <select name="department" class="form-control-premium w-100">
-                            <option value="">Semua Program Studi</option>
-                            @foreach($faculties as $f)
-                                <optgroup label="{{ $f->name }}">
-                                    @foreach($departments->where('faculty_id', $f->id) as $d)
-                                        <option value="{{ $d->id }}" {{ request('department') == $d->id ? 'selected' : '' }}>{{ $d->name }}</option>
+                        <label class="form-label extra-small fw-800 text-uppercase text-secondary mb-2" style="letter-spacing: 0.1em;">
+                            <i class="fas fa-calendar-check me-1"></i> Periode & Urutan
+                        </label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <select name="year" class="form-select-premium w-100">
+                                    <option value="">Tahun</option>
+                                    @foreach($years as $y)
+                                        <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
                                     @endforeach
-                                </optgroup>
-                            @endforeach
-                        </select>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <select name="sort" class="form-select-premium w-100">
+                                    <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
+                                    <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Terlama</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label small fw-800 text-uppercase opacity-50" style="letter-spacing: 0.1em;">Tahun</label>
-                        <select name="year" class="form-control-premium w-100">
-                            <option value="">Semua Tahun</option>
-                            @foreach($years as $y)
-                                <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
-                            @endforeach
-                        </select>
+                        <label class="form-label extra-small fw-800 text-uppercase text-secondary mb-2" style="letter-spacing: 0.1em;">
+                            <i class="fas fa-user-edit me-1"></i> Penulis & Pembimbing
+                        </label>
+                        <div class="d-grid gap-2">
+                            <input type="text" name="author" class="form-control-premium w-100" placeholder="Nama Penulis..." value="{{ request('author') }}">
+                            <input type="text" name="supervisor" class="form-control-premium w-100" placeholder="Nama Pembimbing..." value="{{ request('supervisor') }}">
+                        </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="form-label small fw-800 text-uppercase opacity-50" style="letter-spacing: 0.1em;">Urutkan Berdasarkan</label>
-                        <select name="sort" class="form-control-premium w-100">
-                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
-                            <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Terlama</option>
-                            <option value="title" {{ request('sort') == 'title' ? 'selected' : '' }}>Judul (A-Z)</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label small fw-800 text-uppercase opacity-50" style="letter-spacing: 0.1em;">Penulis / NIM</label>
-                        <input type="text" name="author" class="form-control-premium w-100" placeholder="Nama atau NIM..." value="{{ request('author') }}">
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label small fw-800 text-uppercase opacity-50" style="letter-spacing: 0.1em;">Pembimbing</label>
-                        <input type="text" name="supervisor" class="form-control-premium w-100" placeholder="Nama Pembimbing..." value="{{ request('supervisor') }}">
-                    </div>
+                    <hr class="my-4 opacity-10">
 
                     <div class="mb-5">
-                        <label class="form-label small fw-800 text-uppercase opacity-50 mb-3" style="letter-spacing: 0.1em;">Tipe Dokumen</label>
-                        <div class="d-grid gap-2">
+                        <label class="form-label extra-small fw-800 text-uppercase text-secondary mb-3" style="letter-spacing: 0.1em;">
+                            <i class="fas fa-tags me-1"></i> Tipe Dokumen
+                        </label>
+                        <div class="row g-2">
                             @foreach($types as $t)
-                            <div class="form-check custom-radio">
-                                <input class="form-check-input d-none" type="radio" name="type" value="{{ $t->name }}" id="type{{ $t->id }}" {{ request('type') == $t->name ? 'checked' : '' }}>
-                                <label class="form-check-label py-2 px-3 border rounded-3 w-100 text-center cursor-pointer transition-all small fw-bold" for="type{{ $t->id }}">
-                                    {{ $t->name }}
-                                </label>
+                            <div class="col-6">
+                                <div class="form-check custom-radio">
+                                    <input class="form-check-input d-none" type="radio" name="type" value="{{ $t->name }}" id="type{{ $t->id }}" {{ request('type') == $t->name ? 'checked' : '' }}>
+                                    <label class="form-check-label py-2 px-1 border rounded-3 w-100 text-center cursor-pointer transition-all fw-bold" style="font-size: 0.7rem;" for="type{{ $t->id }}">
+                                        {{ $t->name }}
+                                    </label>
+                                </div>
                             </div>
                             @endforeach
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 mb-3 py-3 shadow-lg">
-                        <i class="fas fa-search me-2"></i> CARI KOLEKSI
-                    </button>
-                    @if(request()->hasAny(['q', 'faculty', 'department', 'year', 'type', 'author', 'supervisor', 'sort']))
-                        <a href="{{ url('/browse') }}" class="btn btn-link w-100 text-muted small text-decoration-none fw-bold">
-                            <i class="fas fa-sync-alt me-1"></i> Reset Semua Filter
-                        </a>
-                    @endif
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary py-3 rounded-4 shadow-sm fw-800">
+                            <i class="fas fa-filter me-2"></i> TERAPKAN
+                        </button>
+                        @if(request()->hasAny(['q', 'faculty', 'department', 'year', 'type', 'author', 'supervisor', 'sort']))
+                            <a href="{{ url('/browse') }}" class="btn btn-outline-light py-2 rounded-4 text-muted small fw-bold">
+                                <i class="fas fa-sync-alt me-1"></i> Reset Filter
+                            </a>
+                        @endif
+                    </div>
                 </form>
             </div>
         </div>
