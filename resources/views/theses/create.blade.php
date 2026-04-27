@@ -61,23 +61,39 @@
                     </div>
 
                     <div class="mb-5">
-                        <label class="form-label fw-600">File Dokumen (PDF)</label>
-                        <div class="upload-zone p-5 border-2 border-dashed border-light-subtle rounded-4 text-center bg-light transition-all cursor-pointer" id="drop-zone" style="position: relative; z-index: 1;">
-                            <input type="file" name="file" id="file-input" class="d-none" accept=".pdf" required>
-                            <div id="upload-idle">
-                                <i class="fas fa-cloud-upload-alt fa-3x text-secondary opacity-25 mb-3"></i>
-                                <p class="mb-0 text-secondary">Klik atau tarik file PDF ke sini</p>
-                                <small class="text-muted">Maksimal 20MB</small>
-                            </div>
-                            <div id="upload-selected" class="d-none animate-fade-in">
-                                <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle mb-3" style="width: 80px; height: 80px;">
-                                    <i class="fas fa-check-circle fa-3x"></i>
+                        <label class="form-label fw-600 d-flex justify-content-between align-items-center">
+                            Berkas Dokumen (PDF)
+                            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold" id="add-file-row">
+                                <i class="fas fa-plus me-1"></i> TAMBAH BAGIAN BERKAS
+                            </button>
+                        </label>
+                        <div id="files-container">
+                            <div class="file-row mb-3 animate-fade-in">
+                                <div class="p-4 rounded-4 border bg-light shadow-sm">
+                                    <div class="row g-3 align-items-center">
+                                        <div class="col-md-5">
+                                            <label class="small text-muted mb-2 fw-bold">Label Berkas</label>
+                                            <input type="text" name="file_labels[]" class="form-control border-0 bg-white rounded-3 p-3" value="Full Text" placeholder="Contoh: Bab 1 / Full Text" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small text-muted mb-2 fw-bold">Pilih PDF (Maks 20MB)</label>
+                                            <input type="file" name="files[]" class="form-control border-0 bg-white rounded-3 p-3" accept=".pdf" required>
+                                        </div>
+                                        <div class="col-md-1 text-end">
+                                            <label class="small text-muted mb-2 d-block">&nbsp;</label>
+                                            <button type="button" class="btn btn-link text-danger remove-row d-none" title="Hapus Baris">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                                <h5 class="text-success fw-bold mb-1">Berhasil Dipilih!</h5>
-                                <p class="mb-2 text-secondary small" id="file-name"></p>
-                                <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold" id="btn-cancel-file" style="font-size: 0.7rem; position: relative; z-index: 10;">
-                                    <i class="fas fa-trash-alt me-1"></i> GANTI FILE
-                                </button>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-primary border-0 rounded-4 mt-3 small p-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-info-circle fs-5"></i>
+                                <span>Tips: Anda dapat mengunggah file utuh (Full Text) saja, atau membaginya per bab.</span>
                             </div>
                         </div>
 
@@ -105,65 +121,62 @@
 
 @section('scripts')
 <script>
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const uploadIdle = document.getElementById('upload-idle');
-    const uploadSelected = document.getElementById('upload-selected');
-    const fileName = document.getElementById('file-name');
-    const btnCancel = document.getElementById('btn-cancel-file');
+    const filesContainer = document.getElementById('files-container');
+    const addFileRowBtn = document.getElementById('add-file-row');
     const uploadForm = document.getElementById('upload-form');
     const submitBtn = document.getElementById('submit-btn');
-    
-    // Progress Elements
     const progressContainer = document.getElementById('progress-container');
     const progressBar = document.getElementById('progress-bar');
     const progressPercent = document.getElementById('progress-percent');
 
-    // Klik untuk pilih file
-    dropZone.onclick = (e) => {
-        if (e.target.id !== 'btn-cancel-file' && !e.target.closest('#btn-cancel-file')) {
-            fileInput.click();
-        }
-    };
+    // Tambah Baris Baru
+    addFileRowBtn.addEventListener('click', () => {
+        const rowCount = filesContainer.querySelectorAll('.file-row').length;
+        const newRow = document.createElement('div');
+        newRow.className = 'file-row mb-3 animate-fade-in';
+        newRow.innerHTML = `
+            <div class="p-4 rounded-4 border bg-light shadow-sm">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-5">
+                        <label class="small text-muted mb-2 fw-bold">Label Berkas</label>
+                        <input type="text" name="file_labels[]" class="form-control border-0 bg-white rounded-3 p-3" placeholder="Contoh: Bab ${rowCount + 1}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="small text-muted mb-2 fw-bold">Pilih PDF (Maks 20MB)</label>
+                        <input type="file" name="files[]" class="form-control border-0 bg-white rounded-3 p-3" accept=".pdf" required>
+                    </div>
+                    <div class="col-md-1 text-end">
+                        <label class="small text-muted mb-2 d-block">&nbsp;</label>
+                        <button type="button" class="btn btn-link text-danger remove-row" title="Hapus Baris">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        filesContainer.appendChild(newRow);
+        updateRemoveButtons();
+    });
 
-    fileInput.onchange = (e) => {
-        if (e.target.files.length > 0) {
-            handleFileSelect(e.target.files[0]);
+    // Hapus Baris
+    filesContainer.addEventListener('click', (e) => {
+        if (e.target.closest('.remove-row')) {
+            e.target.closest('.file-row').remove();
+            updateRemoveButtons();
         }
-    };
+    });
 
-    function handleFileSelect(file) {
-        if (file.type !== 'application/pdf') {
-            alert('Mohon unggah file dalam format PDF!');
-            fileInput.value = '';
-            return;
-        }
-        
-        if (file.size > 20 * 1024 * 1024) {
-            alert('Ukuran file maksimal adalah 20MB!');
-            fileInput.value = '';
-            return;
-        }
-        
-        // Tampilkan indikator sukses
-        fileName.innerText = file.name + " (" + (file.size / 1024 / 1024).toFixed(2) + " MB)";
-        uploadIdle.classList.add('d-none');
-        uploadSelected.classList.remove('d-none');
-        
-        // Tambahkan efek border hijau pada zone
-        dropZone.classList.add('border-success', 'bg-success', 'bg-opacity-10');
-        dropZone.classList.remove('bg-light');
+    function updateRemoveButtons() {
+        const rows = filesContainer.querySelectorAll('.file-row');
+        rows.forEach((row, index) => {
+            const removeBtn = row.querySelector('.remove-row');
+            if (rows.length === 1) {
+                removeBtn.classList.add('d-none');
+            } else {
+                removeBtn.classList.remove('d-none');
+            }
+        });
     }
-
-    btnCancel.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        fileInput.value = '';
-        uploadIdle.classList.remove('d-none');
-        uploadSelected.classList.add('d-none');
-        dropZone.classList.remove('border-success', 'bg-success', 'bg-opacity-10');
-        dropZone.classList.add('bg-light');
-    };
 
     // AJAX Upload with Progress
     uploadForm.onsubmit = function(e) {
@@ -172,14 +185,21 @@
         const formData = new FormData(this);
         const xhr = new XMLHttpRequest();
         
-        // Disable Submit Button
+        // Validation: Check file sizes before sending
+        const fileInputs = this.querySelectorAll('input[type="file"]');
+        for (let input of fileInputs) {
+            if (input.files.length > 0) {
+                if (input.files[0].size > 20 * 1024 * 1024) {
+                    alert('Salah satu file melebihi batas 20MB!');
+                    return;
+                }
+            }
+        }
+        
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Memproses...';
-        
-        // Show Progress Container
         progressContainer.classList.remove('d-none');
         
-        // Track Progress
         xhr.upload.addEventListener('progress', function(e) {
             if (e.lengthComputable) {
                 const percent = Math.round((e.loaded / e.total) * 100);
@@ -187,38 +207,32 @@
                 progressPercent.innerText = percent + '%';
                 
                 if (percent === 100) {
-                    progressPercent.innerText = 'Menyimpan ke server...';
+                    progressPercent.innerText = 'Menyimpan berkas di server...';
                 }
             }
         });
         
-        // Handle Response
         xhr.onload = function() {
             if (xhr.status >= 200 && xhr.status < 400) {
                 try {
                     const response = JSON.parse(xhr.responseText);
                     if (response.success) {
-                        // Redirect ke dashboard (pesan sukses sudah di-flash di server)
                         window.location.href = response.redirect_url;
                     } else {
-                        alert('Gagal: ' + (response.message || 'Terjadi kesalahan tidak diketahui.'));
+                        alert('Gagal: ' + (response.message || 'Terjadi kesalahan.'));
                         resetUploadState();
                     }
                 } catch (e) {
-                    // Jika server mengirimkan HTML (misal redirect standar), tetap arahkan ke dashboard
                     window.location.href = "{{ route('dashboard') }}";
                 }
-            } else if (xhr.status === 413) {
-                alert('GAGAL: Ukuran file terlalu besar bagi server (413 Payload Too Large). \n\nSilakan tingkatkan "client_max_body_size" di Nginx aaPanel Anda.');
-                resetUploadState();
             } else {
-                alert('Terjadi kesalahan server (Error ' + xhr.status + '). \n\nPastikan konfigurasi PHP "upload_max_filesize" dan "post_max_size" di aaPanel sudah 50M.');
+                alert('Terjadi kesalahan server (Error ' + xhr.status + ').');
                 resetUploadState();
             }
         };
         
         xhr.onerror = function() {
-            alert('Koneksi terputus atau terjadi kesalahan jaringan. \n\nHal ini biasanya terjadi jika server (Nginx/PHP) menutup paksa koneksi karena file terlalu besar.');
+            alert('Koneksi terputus.');
             resetUploadState();
         };
 

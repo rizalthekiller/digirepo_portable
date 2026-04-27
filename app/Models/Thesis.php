@@ -67,6 +67,14 @@ class Thesis extends Model
     }
 
     /**
+     * Get the files for the thesis.
+     */
+    public function files()
+    {
+        return $this->hasMany(ThesisFile::class)->orderBy('order');
+    }
+
+    /**
      * Get the downloads for the thesis.
      */
     public function downloads()

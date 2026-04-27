@@ -140,6 +140,40 @@ class ThesisController extends Controller
     }
 
     /**
+     * Download a specific file from the thesis files collection.
+     */
+    public function downloadFile(\App\Models\ThesisFile $file)
+    {
+        $thesis = $file->thesis;
+        $user = auth()->user();
+        $isOwner = auth()->check() && auth()->id() === $thesis->user_id;
+        $isAdmin = auth()->check() && $user && $user->isAdmin();
+
+        if (auth()->check() && $user->isGuest()) {
+            abort(403, 'Guest tidak diperbolehkan mengunduh dokumen.');
+        }
+
+        if ($thesis->status !== 'approved' && !$isOwner && !$isAdmin) {
+            abort(403);
+        }
+
+        // Embargo Check
+        if ($thesis->embargo_until && now()->lt($thesis->embargo_until) && !$isOwner && !$isAdmin) {
+            abort(403, 'Gagal: Dokumen dalam masa embargo.');
+        }
+
+        // Record Statistics
+        \App\Models\Download::create([
+            'thesis_id' => $thesis->id,
+            'user_id' => auth()->id(),
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        return Storage::disk('public')->download($file->file_path, "{$file->label} - {$thesis->title}.pdf");
+    }
+
+    /**
      * View/Print the thesis certificate.
      */
     public function certificate(Thesis $thesis)
@@ -207,21 +241,36 @@ class ThesisController extends Controller
             'abstract' => 'required|string',
             'keywords' => 'required|string',
             'supervisor_name' => 'required|string',
-            'file' => 'required|mimes:pdf|max:20480', // 20MB
+            'files' => 'required|array|min:1',
+            'files.*' => 'required|mimes:pdf|max:20480',
+            'file_labels' => 'required|array|min:1',
         ]);
 
-        $file = $request->file('file');
-        
-        // 1. Save to temporary location (Persistent for queue worker)
-        $tempPath = $file->store('temp-uploads', 'local');
-
-        // 2. Prepare final path logic
+        $filesData = [];
         $year = $request->year;
         $typeSlug = \Illuminate\Support\Str::slug($request->type);
         $facultySlug = \Illuminate\Support\Str::slug($user->department->faculty->name ?? 'Umum');
         $deptSlug = \Illuminate\Support\Str::slug($user->department->name ?? 'Umum');
         $nim = preg_replace('/[^A-Za-z0-9\-]/', '', $user->nim ?: 'Unknown');
-        $finalPath = "{$year}/{$typeSlug}/{$facultySlug}/{$deptSlug}/{$nim}.pdf";
+
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $index => $file) {
+                $label = $request->file_labels[$index] ?? 'Document ' . ($index + 1);
+                $labelSlug = \Illuminate\Support\Str::slug($label);
+                
+                // Temp save
+                $tempPath = $file->store('temp-uploads', 'local');
+                
+                // Final destination logic
+                $finalPath = "{$year}/{$typeSlug}/{$facultySlug}/{$deptSlug}/{$nim}_{$labelSlug}.pdf";
+                
+                $filesData[] = [
+                    'temp' => $tempPath,
+                    'final' => $finalPath,
+                    'label' => $label
+                ];
+            }
+        }
 
         $data = [
             'title' => $request->title,
@@ -230,7 +279,6 @@ class ThesisController extends Controller
             'abstract' => $request->abstract,
             'keywords' => $request->keywords,
             'supervisor_name' => $request->supervisor_name,
-            'file_path' => null, // Reset path while processing in queue
             'status' => 'pending', 
         ];
 
@@ -242,11 +290,10 @@ class ThesisController extends Controller
             $thesis = \App\Models\Thesis::create($data);
         }
 
-        // 3. Dispatch Job to handle file move and notifications
+        // 3. Dispatch Job with multi-files data
         \App\Jobs\ProcessThesisSubmission::dispatch(
             $thesis, 
-            $tempPath, 
-            $finalPath, 
+            $filesData, 
             $existingThesis ? true : false
         );
 

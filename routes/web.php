@@ -89,6 +89,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/theses/{thesis}/read', [ThesisController::class, 'read'])->name('theses.read');
         Route::get('/theses/{thesis}/stream', [ThesisController::class, 'stream'])->name('theses.stream');
         Route::get('/theses/{thesis}/download', [ThesisController::class, 'download'])->name('theses.download');
+        Route::get('/theses/file/{file}/download', [ThesisController::class, 'downloadFile'])->name('theses.download.file');
         Route::get('/theses/{thesis}/certificate', [ThesisController::class, 'certificate'])->name('theses.certificate');
     });
 

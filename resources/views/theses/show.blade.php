@@ -101,48 +101,57 @@
                             }
                         @endphp
 
-                        <!-- Desain Kartu Dokumen (Versi Kompak) -->
-                        <div class="mt-5 p-4 rounded-4 border bg-white shadow-sm text-center animate-fade-in mx-auto" style="max-width: 500px;">
-                            <div class="mb-3">
-                                <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-sm" style="width: 60px; height: 60px;">
-                                    <i class="fas fa-file-pdf fs-3"></i>
-                                </div>
+                        <!-- Desain Kartu Dokumen (Versi Multiple Files) -->
+                        <div class="mt-5 p-5 rounded-4 border bg-white shadow-sm animate-fade-in mx-auto" style="max-width: 600px;">
+                            <h5 class="fw-800 mb-4 text-dark text-center">Berkas Dokumen</h5>
+                            
+                            <div class="d-grid gap-3">
+                                @forelse($thesis->files as $file)
+                                    <div class="p-3 rounded-4 bg-light border d-flex align-items-center justify-content-between gap-3 hover-lift">
+                                        <div class="d-flex align-items-center gap-3 text-start">
+                                            <div class="bg-danger bg-opacity-10 text-danger rounded-3 p-2 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                                                <i class="fas fa-file-pdf fs-4"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark small line-clamp-1">{{ $file->label }}</div>
+                                                <div class="text-muted extra-small" style="font-size: 0.65rem;">Format: PDF • Terverifikasi</div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            @auth
+                                                @if($thesis->embargo_until && now()->lt($thesis->embargo_until) && auth()->id() !== $thesis->user_id && !auth()->user()->isAdmin())
+                                                    <span class="badge bg-white text-warning border rounded-pill px-3 py-2 small shadow-sm">
+                                                        <i class="fas fa-lock me-1"></i> EMBARGO
+                                                    </span>
+                                                @else
+                                                    <a href="{{ route('theses.download.file', $file->id) }}" data-turbo="false" class="btn btn-danger rounded-pill btn-sm px-3 fw-bold shadow-sm">
+                                                        <i class="fas fa-download me-1"></i> UNDUH
+                                                    </a>
+                                                @endif
+                                            @else
+                                                <span class="badge bg-white text-muted border rounded-pill px-3 py-2 small"><i class="fas fa-lock me-1"></i> Terkunci</span>
+                                            @endauth
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="text-center py-4 opacity-50">
+                                        <i class="fas fa-folder-open fs-2 mb-2 d-block"></i>
+                                        <div class="small fw-bold">Belum ada file terlampir</div>
+                                    </div>
+                                @endforelse
                             </div>
                             
-                            <h5 class="fw-800 mb-2 text-dark">File Dokumen</h5>
-                            <p class="text-muted mb-4 small">
-                                Klik tombol di bawah untuk membuka file asli di tab baru.
-                            </p>
-
-                            @if($thesis->file_path && $fileExists)
-                                @auth
-                                    <div class="d-flex flex-wrap gap-2 justify-content-center">
-                                        <a href="{{ route('theses.read', $thesis->id) }}" data-turbo="false" class="btn btn-danger rounded-pill px-4 py-2 fw-bold shadow-sm small">
-                                            <i class="fas fa-book-open me-1"></i> BACA
-                                        </a>
-                                        
-                                        <a href="{{ route('theses.download', $thesis->id) }}" data-turbo="false" class="btn btn-outline-danger rounded-pill px-4 py-2 fw-bold small">
-                                            <i class="fas fa-download me-1"></i> UNDUH PDF
-                                        </a>
-                                    </div>
-                                @else
+                            @guest
+                                <div class="mt-4 text-center">
                                     <a href="{{ route('login') }}" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow-sm small">
-                                        <i class="fas fa-lock me-1"></i> LOGIN UNTUK MEMBUKA PDF
+                                        <i class="fas fa-lock me-1"></i> LOGIN UNTUK MENGUNDUH
                                     </a>
-                                @endauth
-                            @else
-                                <div class="d-flex flex-column align-items-center">
-                                    <div class="p-2 bg-light rounded-pill d-inline-block px-4 border text-muted fw-bold small" style="cursor: not-allowed; opacity: 0.6;">
-                                        <i class="fas fa-file-excel me-1"></i> PDF TIDAK TERSEDIA
-                                    </div>
-                                    <p class="small text-danger mt-2 mb-0" style="font-size: 0.7rem;">
-                                        <i class="fas fa-info-circle me-1"></i> 
-                                        @if(!$thesis->file_path)
-                                            Belum diunggah.
-                                        @else
-                                            File fisik tidak ditemukan.
-                                        @endif
-                                    </p>
+                                </div>
+                            @endguest
+
+                            @if($thesis->embargo_until && now()->lt($thesis->embargo_until))
+                                <div class="mt-4 alert alert-warning border-0 rounded-4 small p-3 mb-0">
+                                    <i class="fas fa-info-circle me-2"></i> Dokumen ini sedang dalam masa embargo hingga <b>{{ \Carbon\Carbon::parse($thesis->embargo_until)->format('d M Y') }}</b>.
                                 </div>
                             @endif
                         </div>

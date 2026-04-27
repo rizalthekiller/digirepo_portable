@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Thesis;
 use App\Models\User;
+use App\Models\ThesisFile;
 use App\Notifications\ThesisNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -19,18 +20,16 @@ class ProcessThesisSubmission implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $thesis;
-    protected $tempPath;
-    protected $finalPath;
+    protected $filesData; // Array: [['temp' => ..., 'final' => ..., 'label' => ...], ...]
     protected $isResubmission;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(Thesis $thesis, string $tempPath, string $finalPath, bool $isResubmission = false)
+    public function __construct(Thesis $thesis, array $filesData, bool $isResubmission = false)
     {
         $this->thesis = $thesis;
-        $this->tempPath = $tempPath;
-        $this->finalPath = $finalPath;
+        $this->filesData = $filesData;
         $this->isResubmission = $isResubmission;
     }
 
@@ -40,40 +39,67 @@ class ProcessThesisSubmission implements ShouldQueue
     public function handle(): void
     {
         try {
-            // 1. Move file from temp to final destination
-            if (Storage::disk('local')->exists($this->tempPath)) {
-                // Ensure directory exists in public disk
-                $directory = dirname($this->finalPath);
-                if (!Storage::disk('public')->exists($directory)) {
-                    Storage::disk('public')->makeDirectory($directory);
-                }
-
-                // Copy using streams to save memory
-                $stream = Storage::disk('local')->readStream($this->tempPath);
-                Storage::disk('public')->writeStream($this->finalPath, $stream);
-                
-                if (is_resource($stream)) {
-                    fclose($stream);
-                }
-
-                // Update thesis path and reset status to pending
-                $this->thesis->update([
-                    'file_path' => $this->finalPath,
-                    'status' => 'pending',
-                ]);
-
-                // Cleanup temp file
-                Storage::disk('local')->delete($this->tempPath);
+            // Hapus file lama jika ini adalah resubmission (opsional, tergantung kebijakan)
+            if ($this->isResubmission) {
+                $this->thesis->files()->delete();
             }
 
-            // 2. Trigger Admin Notification
+            $primaryPath = null;
+
+            foreach ($this->filesData as $index => $fileInfo) {
+                $tempPath = $fileInfo['temp'];
+                $finalPath = $fileInfo['final'];
+                $label = $fileInfo['label'];
+
+                if (Storage::disk('local')->exists($tempPath)) {
+                    // Ensure directory exists
+                    $directory = dirname($finalPath);
+                    if (!Storage::disk('public')->exists($directory)) {
+                        Storage::disk('public')->makeDirectory($directory);
+                    }
+
+                    // Move file
+                    $stream = Storage::disk('local')->readStream($tempPath);
+                    Storage::disk('public')->writeStream($finalPath, $stream);
+                    
+                    if (is_resource($stream)) {
+                        fclose($stream);
+                    }
+
+                    // Save to thesis_files table
+                    ThesisFile::create([
+                        'thesis_id' => $this->thesis->id,
+                        'label' => $label,
+                        'file_path' => $finalPath,
+                        'is_public' => true,
+                        'order' => $index
+                    ]);
+
+                    // Set first file as primary path for compatibility
+                    if ($index === 0) {
+                        $primaryPath = $finalPath;
+                    }
+
+                    // Cleanup temp
+                    Storage::disk('local')->delete($tempPath);
+                }
+            }
+
+            // Update thesis primary path
+            if ($primaryPath) {
+                $this->thesis->update([
+                    'file_path' => $primaryPath,
+                    'status' => 'pending',
+                ]);
+            }
+
+            // Trigger Admin Notification
             $admins = User::whereIn('role', ['admin', 'superadmin'])->get();
             Notification::send($admins, new ThesisNotification($this->thesis, $this->isResubmission ? 'resubmitted' : 'submitted'));
 
         } catch (\Exception $e) {
-            \Log::error("Gagal memproses antrean upload skripsi (ID: {$this->thesis->id}): " . $e->getMessage());
-            // You might want to update thesis status to 'failed' or similar if you had that status
-            throw $e; // Retry if failed
+            \Log::error("Gagal memproses antrean upload skripsi ganda (ID: {$this->thesis->id}): " . $e->getMessage());
+            throw $e;
         }
     }
 }
