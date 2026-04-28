@@ -7,9 +7,7 @@
     @yield('extra_meta')
     
     @php
-        $favicon = \App\Models\Setting::get('site_favicon_path');
-        $siteLogo = \App\Models\Setting::get('site_logo_path');
-        $siteName = \App\Models\Setting::get('site_name', 'DigiRepo');
+        $favicon = $siteFavicon;
     @endphp
 
     @if($favicon && file_exists(public_path($favicon)))
@@ -206,6 +204,21 @@
             max-height: 400px;
             overflow-y: auto;
         }
+
+        /* Responsive Utilities */
+        @media (max-width: 991px) {
+            .navbar-brand { font-size: 1.3rem; }
+            .btn-primary { padding: 10px 22px; font-size: 0.9rem; }
+            .glass-card { padding: 25px; border-radius: 20px; }
+            h1.display-3 { font-size: 2.5rem !important; }
+            h2 { font-size: 1.5rem !important; }
+            footer { padding: 60px 0 30px !important; margin-top: 80px !important; }
+        }
+
+        @media (max-width: 576px) {
+            h1.display-3 { font-size: 2rem !important; }
+            .navbar { padding: 0.5rem 0; }
+        }
     </style>
     @yield('styles')
 </head>
@@ -213,9 +226,9 @@
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/') }}">
-                @if($siteLogo && !is_dir(public_path($siteLogo)) && file_exists(public_path($siteLogo)))
-                    <img src="{{ asset($siteLogo) }}" alt="Logo" style="max-height: 40px;">
-                @endif
+                <img src="{{ ($siteLogo && file_exists(public_path($siteLogo))) ? asset($siteLogo) : asset('assets/logo.png') }}" 
+                     alt="Logo" 
+                     style="max-height: 40px; width: auto; display: inline-block;">
                 <span class="fw-900">{{ $siteName }}</span><span class="text-primary-light">.</span>
             </a>
             <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -339,8 +352,9 @@
         <div class="container">
             <div class="row g-5">
                 <div class="col-lg-5">
-                    <h2 class="text-white fw-800 mb-4" style="letter-spacing: -1px;">DigiRepo<span class="text-primary-light">.</span></h2>
-                    <p class="mb-4 pe-lg-5 text-white-50">Sistem Repositori Digital Perpustakaan Modern yang dirancang untuk mendukung ekosistem literasi digital yang terintegrasi, aman, dan mudah diakses.</p>
+                    <h2 class="text-white fw-800 mb-1" style="letter-spacing: -1px;">{{ $siteName }}<span class="text-primary-light">.</span></h2>
+                    <p class="text-white-50 small fw-bold mb-4" style="letter-spacing: 1px; text-transform: uppercase;">{{ $siteInstitution }}</p>
+                    <p class="mb-4 pe-lg-5 text-white-50">{{ $siteTagline }}</p>
                     <div class="d-flex gap-3">
                         @foreach(['facebook-f', 'twitter', 'instagram', 'linkedin-in'] as $social)
                             <a href="#" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center shadow-none" style="width: 40px; height: 40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
@@ -367,14 +381,14 @@
                 </div>
                 <div class="col-lg-3">
                     <h6 class="text-white fw-800 mb-4 text-uppercase small" style="letter-spacing: 0.1em;">Kontak Kami</h6>
-                    <p class="small mb-2 text-white-50"><i class="fas fa-map-marker-alt me-2 text-primary-light"></i> Gedung Perpustakaan Pusat, Lantai 2</p>
-                    <p class="small mb-2 text-white-50"><i class="fas fa-envelope me-2 text-primary-light"></i> library@institution.ac.id</p>
+                    <p class="small mb-2 text-white-50"><i class="fas fa-map-marker-alt me-2 text-primary-light"></i> {{ $siteAddress }}</p>
+                    <p class="small mb-2 text-white-50"><i class="fas fa-envelope me-2 text-primary-light"></i> {{ $siteEmail }}</p>
                 </div>
             </div>
             <hr class="my-5 opacity-5">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <p class="small mb-0">&copy; {{ date('Y') }} DigiRepo System. All rights reserved.</p>
+                    <p class="small mb-0">&copy; {{ date('Y') }} {{ $siteFooter ?: $siteInstitution }}. All rights reserved.</p>
                 </div>
                 <div class="col-md-6 text-md-end">
                 </div>

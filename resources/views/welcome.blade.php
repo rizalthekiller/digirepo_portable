@@ -56,6 +56,15 @@
     }
 
     .badge-soft { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: none; }
+
+    @media (max-width: 991px) {
+        .hero-section { padding: 100px 0 140px; }
+        .search-card { border-radius: 24px; padding: 10px; margin-top: 30px; }
+        .search-input-group { flex-direction: column; }
+        .search-input-group input { padding: 12px 20px; font-size: 1rem; text-align: center; }
+        .search-input-group button { width: 100%; border-radius: 15px !important; }
+        .stat-overlay { margin-top: -60px; }
+    }
 </style>
 @endsection
 
@@ -63,8 +72,8 @@
 <!-- Hero Section -->
 <section class="hero-section text-center">
     <div class="container animate-fade-in">
-        <h1 class="display-3 fw-800 mb-3" style="letter-spacing: -2px;">Eksplorasi Ilmu Tanpa Batas</h1>
-        <p class="lead opacity-75 mb-5 mx-auto" style="max-width: 600px;">Akses ribuan karya ilmiah, skripsi, dan disertasi dalam genggaman Anda. Digitalisasi literasi untuk masa depan.</p>
+        <h1 class="display-3 fw-800 mb-3" style="letter-spacing: -2px;">{{ $siteHeroTitle ?: $siteName }}</h1>
+        <p class="lead opacity-75 mb-5 mx-auto" style="max-width: 600px;">{{ $siteTagline }}</p>
         
         <div class="search-card">
             <form action="{{ url('/search') }}" method="GET" class="search-input-group">

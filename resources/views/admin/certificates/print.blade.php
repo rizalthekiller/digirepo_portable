@@ -146,15 +146,36 @@
     $tanggalSurat = $dateObj->day . ' ' . $bulanIndo[$dateObj->month] . ' ' . $dateObj->year;
 
     $verifyUrl = url('/verify/' . ($thesis->verification_hash ?? md5($thesis->id)));
-    $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . urlencode($verifyUrl);
+    $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . urlencode($verifyUrl);
+    
+    // Convert QR to Base64
+    $qrBase64 = null;
+    try {
+        $qrData = file_get_contents($qrApiUrl);
+        if ($qrData) {
+            $qrBase64 = 'data:image/png;base64,' . base64_encode($qrData);
+        }
+    } catch (\Exception $e) {
+        $qrBase64 = null;
+    }
 @endphp
 
 <div class="paper">
     <!-- Kode HTML Murni Sesuai Permintaan -->
     <div style="font-family: Arial, Helvetica, sans-serif; color: #000; padding: 0; line-height: 1.5;">
         <div style="text-align: center; margin-bottom: 0;">
-            @if($logoPath && !is_dir(public_path($logoPath)) && file_exists(public_path($logoPath)))
-                <img src="{{ url($logoPath) }}" style="width: 100%; height: auto; display: block; margin: 0 auto;">
+            @php
+                $fullLogoPath = public_path($logoPath);
+                $logoBase64 = null;
+                if (file_exists($fullLogoPath) && !is_dir($fullLogoPath)) {
+                    $imageData = base64_encode(file_get_contents($fullLogoPath));
+                    $mime = mime_content_type($fullLogoPath);
+                    $logoBase64 = 'data:' . $mime . ';base64,' . $imageData;
+                }
+            @endphp
+
+            @if($logoBase64)
+                <img src="{{ $logoBase64 }}" style="width: 100%; height: auto; display: block; margin: 0 auto;">
             @else
                 <div style="padding: 20px; border: 1px dashed #ccc;">[ LOGO / KOP SURAT ]</div>
             @endif
@@ -203,7 +224,11 @@
                         <p style="margin: 0;">{{ $issuedCity }}, {{ $tanggalSurat }}</p>
                         <p style="margin: 0;">{{ $sigPrefix }} {{ $sigTitle }},</p>
                         <div style="margin: 10px 0;">
-                            <img src="{{ $qrUrl }}" alt="QR" style="width: 80px; height: 80px;">
+                            @if($qrBase64)
+                                <img src="{{ $qrBase64 }}" alt="QR" style="width: 80px; height: 80px;">
+                            @else
+                                <div style="width: 80px; height: 80px; border: 1px solid #ccc; font-size: 8px; padding: 5px;">QR Error</div>
+                            @endif
                         </div>
                         <p style="margin: 0; font-weight: bold; text-decoration: underline;">{{ $sigName }}</p>
                         <p style="margin: 0;">NIP. {{ $sigNip }}</p>

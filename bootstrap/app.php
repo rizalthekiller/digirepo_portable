@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
         // Ensure CheckInstallation runs before other web middleware
         $middleware->prepend(\App\Http\Middleware\CheckInstallation::class);
 

@@ -1,8 +1,7 @@
 <x-mail::message>
-# Halo, {{ $thesis->user->name }}!
-
 @php
     $docLabel = $thesis->user->isDosen() ? 'Karya Tulis' : 'Skripsi';
+    $siteName = \App\Models\Setting::get('site_name', config('app.name'));
 @endphp
 # Halo, {{ $thesis->user->name }}!
 
@@ -21,5 +20,5 @@ Download Sertifikat
 Silakan simpan sertifikat ini sebagai bukti sah penyerahan karya ilmiah Anda ke repositori perpustakaan.
 
 Terima kasih,<br>
-Tim Repositori {{ config('app.name') }}
+Tim Repositori {{ $siteName }}
 </x-mail::message>

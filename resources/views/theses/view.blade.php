@@ -203,7 +203,10 @@
 
 <header class="viewer-header">
     <div class="header-left">
-        @php $backUrl = auth()->user()->role === 'admin' ? route('admin.theses.index') : route('dashboard'); @endphp
+        @php 
+            $user = auth()->user();
+            $backUrl = ($user && $user->isAdmin()) ? route('admin.theses.index') : route('dashboard'); 
+        @endphp
         <a href="{{ $backUrl }}" data-turbo="false" class="btn-back-circle" title="Kembali">
             <i class="fas fa-arrow-left"></i>
         </a>
@@ -223,9 +226,15 @@
     </div>
 
     <div class="header-right">
-        <a href="{{ route('theses.download', $thesis->id) }}" data-turbo="false" class="btn-download-premium">
-            <i class="fas fa-cloud-download-alt"></i> <span>Unduh PDF</span>
-        </a>
+        @if(!auth()->user()->isGuest())
+            <a href="{{ route('theses.download', $thesis->id) }}" data-turbo="false" class="btn-download-premium">
+                <i class="fas fa-cloud-download-alt"></i> <span>Unduh PDF</span>
+            </a>
+        @else
+            <span class="badge bg-white bg-opacity-10 text-white-50 border border-white border-opacity-10 rounded-pill px-3 py-2 small">
+                <i class="fas fa-lock me-1"></i> Mode Baca-Saja
+            </span>
+        @endif
     </div>
 </header>
 
@@ -336,6 +345,18 @@
     }
 
     start();
+    
+    // Proteksi Tambahan untuk Guest
     document.addEventListener('contextmenu', e => e.preventDefault());
+    
+    @if(auth()->check() && auth()->user()->isGuest())
+    document.addEventListener('keydown', function(e) {
+        // Blokir Ctrl+P (Print), Ctrl+S (Save), Ctrl+U (View Source)
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 's' || e.key === 'u')) {
+            e.preventDefault();
+            alert('Fitur unduh/cetak dinonaktifkan untuk akun tamu.');
+        }
+    });
+    @endif
 </script>
 @endsection

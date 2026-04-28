@@ -37,17 +37,22 @@
 <style>
     .detail-hero {
         background: var(--primary-gradient);
-        padding: 120px 0 160px;
+        padding: 100px 0 140px;
         color: white;
-        margin-bottom: -100px;
-        border-radius: 0 0 100px 100px;
+        margin-bottom: -80px;
+        border-radius: 0 0 60px 60px;
     }
     .detail-card {
         background: white;
-        border-radius: 40px;
-        padding: 60px;
+        border-radius: 35px;
+        padding: 40px;
         box-shadow: 0 30px 60px rgba(0,0,0,0.08);
         border: 1px solid rgba(0,0,0,0.01);
+    }
+    @media (max-width: 991px) {
+        .detail-hero { padding: 80px 0 120px; border-radius: 0 0 40px 40px; margin-bottom: -60px; }
+        .detail-card { padding: 25px; border-radius: 25px; }
+        .detail-hero h1 { font-size: 1.75rem !important; }
     }
     .meta-item {
         padding: 20px;
@@ -102,7 +107,7 @@
                             <h4 class="fw-800 mb-4 d-flex align-items-center">
                                 <i class="fas fa-quote-left text-primary-light me-3 opacity-25"></i> Abstrak
                             </h4>
-                            <div class="abstract-text">
+                            <div class="abstract-text text-justify" style="font-size: 1rem; line-height: 1.7;">
                                 {{ $thesis->abstract }}
                             </div>
                         </div>
@@ -133,35 +138,47 @@
                         @endphp
 
                         <!-- Desain Kartu Dokumen (Versi Multiple Files) -->
-                        <div class="mt-5 p-5 rounded-4 border bg-white shadow-sm animate-fade-in mx-auto" style="max-width: 600px;">
+                        <div class="mt-5 p-4 p-md-5 rounded-4 border bg-white shadow-sm animate-fade-in mx-auto" style="max-width: 600px;">
                             <h5 class="fw-800 mb-4 text-dark text-center">Berkas Dokumen</h5>
                             
                             <div class="d-grid gap-3">
                                 @forelse($thesis->files as $file)
-                                    <div class="p-3 rounded-4 bg-light border d-flex align-items-center justify-content-between gap-3 hover-lift">
-                                        <div class="d-flex align-items-center gap-3 text-start">
-                                            <div class="bg-danger bg-opacity-10 text-danger rounded-3 p-2 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                                    <div class="p-3 rounded-4 bg-light border d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3 hover-lift">
+                                        <div class="d-flex align-items-center gap-3 text-start w-100">
+                                            <div class="bg-danger bg-opacity-10 text-danger rounded-3 p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 45px; height: 45px;">
                                                 <i class="fas fa-file-pdf fs-4"></i>
                                             </div>
-                                            <div>
-                                                <div class="fw-bold text-dark small line-clamp-1">{{ $file->label }}</div>
+                                            <div class="overflow-hidden">
+                                                <div class="fw-bold text-dark small text-truncate">{{ $file->label }}</div>
                                                 <div class="text-muted extra-small" style="font-size: 0.65rem;">Format: PDF • Terverifikasi</div>
                                             </div>
                                         </div>
-                                        <div class="d-flex gap-2">
-                                            @auth
+                                        <div class="d-flex gap-2 w-100 w-sm-auto justify-content-center">
+                                            @if(auth()->check() && !auth()->user()->isGuest())
+                                                {{-- User Biasa (Dosen/Mahasiswa/Admin) bisa download & baca --}}
                                                 @if($thesis->embargo_until && now()->lt($thesis->embargo_until) && auth()->id() !== $thesis->user_id && !auth()->user()->isAdmin())
-                                                    <span class="badge bg-white text-warning border rounded-pill px-3 py-2 small shadow-sm">
+                                                    <span class="badge bg-white text-warning border rounded-pill px-3 py-2 small shadow-sm w-100">
                                                         <i class="fas fa-lock me-1"></i> EMBARGO
                                                     </span>
                                                 @else
-                                                    <a href="{{ route('theses.download.file', $file->id) }}" data-turbo="false" class="btn btn-danger rounded-pill btn-sm px-3 fw-bold shadow-sm">
+                                                    <a href="{{ route('theses.read', $thesis->id) }}" class="btn btn-outline-primary rounded-pill btn-sm px-3 fw-bold w-100">
+                                                        <i class="fas fa-eye me-1"></i> BACA
+                                                    </a>
+                                                    <a href="{{ route('theses.download.file', $file->id) }}" data-turbo="false" class="btn btn-danger rounded-pill btn-sm px-3 fw-bold shadow-sm w-100">
                                                         <i class="fas fa-download me-1"></i> UNDUH
                                                     </a>
                                                 @endif
+                                            @elseif(auth()->check() && auth()->user()->isGuest())
+                                                {{-- User Tamu hanya bisa baca --}}
+                                                <a href="{{ route('theses.read', $thesis->id) }}" class="btn btn-primary rounded-pill btn-sm px-4 fw-bold w-100">
+                                                    <i class="fas fa-eye me-1"></i> BACA ONLINE
+                                                </a>
                                             @else
-                                                <span class="badge bg-white text-muted border rounded-pill px-3 py-2 small"><i class="fas fa-lock me-1"></i> Terkunci</span>
-                                            @endauth
+                                                {{-- Belum login --}}
+                                                <a href="{{ route('login') }}" class="btn btn-warning rounded-pill btn-sm px-3 fw-bold w-100">
+                                                    <i class="fas fa-lock me-1"></i> LOGIN
+                                                </a>
+                                            @endif
                                         </div>
                                     </div>
                                 @empty
@@ -172,13 +189,11 @@
                                 @endforelse
                             </div>
                             
-                            @guest
-                                <div class="mt-4 text-center">
-                                    <a href="{{ route('login') }}" class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow-sm small">
-                                        <i class="fas fa-lock me-1"></i> LOGIN UNTUK MENGUNDUH
-                                    </a>
+                            @if(auth()->check() && auth()->user()->isGuest())
+                                <div class="mt-4 alert alert-info border-0 rounded-4 small p-3 text-center mb-0">
+                                    <i class="fas fa-info-circle me-2"></i> Akun <b>Tamu</b> memiliki akses <b>Baca Online</b>. Fitur unduh dinonaktifkan untuk role ini.
                                 </div>
-                            @endguest
+                            @endif
 
                             @if($thesis->embargo_until && now()->lt($thesis->embargo_until))
                                 <div class="mt-4 alert alert-warning border-0 rounded-4 small p-3 mb-0">

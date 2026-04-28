@@ -4,133 +4,72 @@
 
 @section('styles')
 <style>
-    .stat-card-premium {
-        background: white;
-        border-radius: 25px;
-        padding: 30px;
-        border: 1px solid rgba(0,0,0,0.01);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
-        transition: all 0.3s ease;
-        height: 100%;
-    }
-    .stat-card-premium:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
-    }
-    .icon-box-rounded {
-        width: 50px;
-        height: 50px;
-        border-radius: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        margin-bottom: 20px;
-    }
-    .chart-container {
-        position: relative;
-        height: 300px;
-        width: 100%;
-    }
-    .export-card {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        color: white;
-        border-radius: 25px;
-        padding: 40px;
-        position: relative;
-        overflow: hidden;
-    }
-    .export-card::after {
-        content: '\f1c3';
-        font-family: 'Font Awesome 5 Free';
-        font-weight: 900;
-        position: absolute;
-        right: -20px;
-        bottom: -20px;
-        font-size: 8rem;
-        opacity: 0.05;
-        transform: rotate(-15deg);
-    }
+    .val-text { font-size: 1.75rem; font-weight: 800; color: #0f172a; line-height: 1; }
+    .stat-label { font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; margin-bottom: 1rem; }
 </style>
 @endsection
 
 @section('content')
-<!-- Stats Overview -->
-<div class="row g-4 mb-5">
+<div class="row g-4 mb-4">
     <div class="col-md-3">
-        <div class="stat-card-premium animate-fade-in" style="animation-delay: 0.1s;">
-            <div class="icon-box-rounded bg-info bg-opacity-10 text-info">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="stat-icon bg-info bg-opacity-10 text-info">
                 <i class="fas fa-eye"></i>
             </div>
-            <div class="text-muted small fw-bold text-uppercase letter-spacing-1 mb-1">Total Kunjungan</div>
-            <h2 class="fw-800 mb-0">{{ number_format(\App\Models\Visit::count()) }}</h2>
-            <div class="mt-3 small text-info">
-                <i class="fas fa-chart-line me-1"></i> <span class="fw-bold">Seluruh Waktu</span>
-            </div>
+            <div class="stat-label">Total Kunjungan</div>
+            <div class="val-text">{{ number_format(\App\Models\Visit::count()) }}</div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="stat-card-premium animate-fade-in" style="animation-delay: 0.1s;">
-            <div class="icon-box-rounded bg-success bg-opacity-10 text-success">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="stat-icon bg-success bg-opacity-10 text-success">
                 <i class="fas fa-check-circle"></i>
             </div>
-            <div class="text-muted small fw-bold text-uppercase letter-spacing-1 mb-1">Total Disetujui</div>
-            <h2 class="fw-800 mb-0">{{ number_format($statusStats['approved']) }}</h2>
-            <div class="mt-3 small text-success">
-                <i class="fas fa-arrow-up me-1"></i> <span class="fw-bold">Dokumen Valid</span>
-            </div>
+            <div class="stat-label">Total Disetujui</div>
+            <div class="val-text">{{ number_format($statusStats['approved']) }}</div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="stat-card-premium animate-fade-in" style="animation-delay: 0.2s;">
-            <div class="icon-box-rounded bg-warning bg-opacity-10 text-warning">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="stat-icon bg-warning bg-opacity-10 text-warning">
                 <i class="fas fa-clock"></i>
             </div>
-            <div class="text-muted small fw-bold text-uppercase letter-spacing-1 mb-1">Menunggu Review</div>
-            <h2 class="fw-800 mb-0">{{ number_format($statusStats['pending']) }}</h2>
-            <div class="mt-3 small text-warning">
-                <i class="fas fa-hourglass-half me-1"></i> <span class="fw-bold">Perlu Validasi</span>
-            </div>
+            <div class="stat-label">Menunggu Review</div>
+            <div class="val-text">{{ number_format($statusStats['pending']) }}</div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="stat-card-premium animate-fade-in" style="animation-delay: 0.3s;">
-            <div class="icon-box-rounded bg-danger bg-opacity-10 text-danger">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="stat-icon bg-danger bg-opacity-10 text-danger">
                 <i class="fas fa-times-circle"></i>
             </div>
-            <div class="text-muted small fw-bold text-uppercase letter-spacing-1 mb-1">Ditolak/Revisi</div>
-            <h2 class="fw-800 mb-0">{{ number_format($statusStats['rejected']) }}</h2>
-            <div class="mt-3 small text-danger">
-                <i class="fas fa-exclamation-triangle me-1"></i> <span class="fw-bold">Data Bermasalah</span>
-            </div>
+            <div class="stat-label">Ditolak/Revisi</div>
+            <div class="val-text">{{ number_format($statusStats['rejected']) }}</div>
         </div>
     </div>
 </div>
 
-<div class="row g-4 mb-5">
-    <!-- Monthly Trends Table -->
+<div class="row g-4 mb-4">
     <div class="col-lg-7">
-        <div class="zenith-card animate-fade-in" style="animation-delay: 0.4s;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h5 class="fw-800 mb-1">Tren Unggahan</h5>
-                    <p class="text-muted small mb-0">Statistik pengiriman dokumen 6 bulan terakhir</p>
-                </div>
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white py-3 border-0">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-chart-line me-2 text-primary"></i>Tren Unggahan (6 Bulan)</h6>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="bg-light">
+                <table class="table table-modern align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th class="border-0 small fw-800 text-muted px-4 py-3">BULAN</th>
-                            <th class="border-0 small fw-800 text-muted px-4 py-3 text-end">JUMLAH UNGGAHAN</th>
+                            <th class="ps-4">BULAN</th>
+                            <th class="text-end pe-4">JUMLAH UNGGAHAN</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($monthlyTrends as $trend)
                         <tr>
-                            <td class="px-4 py-3 fw-700 text-dark">{{ $trend->month }}</td>
-                            <td class="px-4 py-3 text-end">
-                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-800">
+                            <td class="ps-4 fw-bold text-dark">{{ $trend->month }}</td>
+                            <td class="text-end pe-4">
+                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 fw-bold">
                                     {{ $trend->total }} Dokumen
                                 </span>
                             </td>
@@ -142,23 +81,24 @@
         </div>
     </div>
     
-    <!-- Type Distribution Table -->
     <div class="col-lg-5">
-        <div class="zenith-card animate-fade-in" style="animation-delay: 0.5s;">
-            <h5 class="fw-800 mb-4">Distribusi Tipe</h5>
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white py-3 border-0">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-pie-chart me-2 text-primary"></i>Distribusi Tipe</h6>
+            </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="bg-light">
+                <table class="table table-modern align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th class="border-0 small fw-800 text-muted px-4 py-3">TIPE DOKUMEN</th>
-                            <th class="border-0 small fw-800 text-muted px-4 py-3 text-end">TOTAL</th>
+                            <th class="ps-4">TIPE DOKUMEN</th>
+                            <th class="text-end pe-4">TOTAL</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($typeStats as $type)
                         <tr>
-                            <td class="px-4 py-3 fw-700 text-dark">{{ $type->type }}</td>
-                            <td class="px-4 py-3 text-end fw-800 text-primary">{{ number_format($type->total) }}</td>
+                            <td class="ps-4 fw-bold text-dark">{{ $type->type }}</td>
+                            <td class="text-end pe-4 fw-bold text-primary">{{ number_format($type->total) }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -168,35 +108,32 @@
     </div>
 </div>
 
-<div class="row g-4 mb-5">
-    <!-- Visit Trends Table -->
+<div class="row g-4 mb-4">
     <div class="col-lg-12">
-        <div class="zenith-card animate-fade-in" style="animation-delay: 0.6s;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h5 class="fw-800 mb-1">Laporan Kunjungan Bulanan</h5>
-                    <p class="text-muted small mb-0">Tren trafik pengunjung website repositori (Mulai dari 0 setiap bulan)</p>
-                </div>
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-users me-2 text-primary"></i>Laporan Kunjungan Bulanan</h6>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="bg-light">
+                <table class="table table-modern align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th class="border-0 small fw-800 text-muted px-4 py-3">PERIODE BULAN</th>
-                            <th class="border-0 small fw-800 text-muted px-4 py-3 text-center">TRAFIK KUNJUNGAN</th>
-                            <th class="border-0 small fw-800 text-muted px-4 py-3 text-end">STATUS</th>
+                            <th class="ps-4">PERIODE BULAN</th>
+                            <th class="text-center">TRAFIK KUNJUNGAN</th>
+                            <th class="text-end pe-4">STATUS</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($visitTrends as $visit)
                         <tr>
-                            <td class="px-4 py-3 fw-700 text-dark">{{ $visit->month }}</td>
-                            <td class="px-4 py-3 text-center">
-                                <h5 class="mb-0 fw-800">{{ number_format($visit->total) }} <small class="text-muted" style="font-size: 0.6rem;">Kunjungan</small></h5>
+                            <td class="ps-4 fw-bold text-dark">{{ $visit->month }}</td>
+                            <td class="text-center">
+                                <span class="fw-bold fs-6 text-dark">{{ number_format($visit->total) }}</span>
+                                <span class="text-muted extra-small ms-1">Views</span>
                             </td>
-                            <td class="px-4 py-3 text-end">
-                                <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3 py-2 fw-800">
-                                    <i class="fas fa-chart-bar me-1"></i> Terhitung
+                            <td class="text-end pe-4">
+                                <span class="badge bg-light text-dark border rounded-pill px-3 py-1 fw-bold">
+                                    <i class="fas fa-history me-1 text-muted"></i> LOGGED
                                 </span>
                             </td>
                         </tr>
@@ -208,22 +145,16 @@
     </div>
 </div>
 
-<!-- Export Section -->
-<div class="export-card animate-fade-in" style="animation-delay: 0.6s;">
+<div class="card border-0 shadow-sm rounded-4 bg-primary text-white p-4">
     <div class="row align-items-center">
-        <div class="col-md-7">
-            <h3 class="fw-800 mb-3">Ekspor Data Koleksi</h3>
-            <p class="opacity-75 mb-4">Dapatkan laporan lengkap seluruh koleksi skripsi dalam format Excel untuk keperluan arsip dan pelaporan institusi.</p>
-            <div class="d-flex gap-3">
-                <a href="{{ route('admin.theses.export') }}" class="btn btn-primary rounded-pill px-5 py-3 fw-800 shadow-lg">
-                    <i class="fas fa-download me-2"></i> DOWNLOAD EXCEL (.xlsx)
-                </a>
-            </div>
+        <div class="col-md-8">
+            <h4 class="fw-bold mb-2 text-white">Ekspor Data Koleksi</h4>
+            <p class="opacity-75 mb-0 small">Dapatkan laporan lengkap seluruh koleksi skripsi dalam format Excel (.xlsx).</p>
         </div>
-        <div class="col-md-5 d-none d-md-block text-center">
-            <div class="p-4 bg-white bg-opacity-10 rounded-circle d-inline-block">
-                <i class="fas fa-file-invoice-dollar fa-5x"></i>
-            </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a href="{{ route('admin.theses.export') }}" class="btn btn-white bg-white text-primary rounded-pill px-4 fw-bold shadow-sm">
+                <i class="fas fa-download me-2"></i> DOWNLOAD EXCEL
+            </a>
         </div>
     </div>
 </div>

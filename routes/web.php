@@ -131,12 +131,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         Route::post('/settings/queue-restart', [AdminController::class, 'restartQueue'])->name('admin.settings.queue_restart');
         Route::get('/settings/backup', [AdminController::class, 'downloadDatabase'])->name('admin.settings.backup');
 
+        // System Control
+        Route::get('/system/control', [AdminController::class, 'systemControl'])->name('admin.system.control');
+        Route::post('/system/run-command', [AdminController::class, 'runArtisanCommand'])->name('admin.system.run_command');
+        Route::post('/system/maintenance', [AdminController::class, 'toggleMaintenance'])->name('admin.system.maintenance');
 
-        Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
         // Pengaturan Sertifikat
         Route::get('/certificates/settings', [AdminController::class, 'certificateSettings'])->name('admin.certificates.settings');
         Route::post('/certificates/settings', [AdminController::class, 'updateCertificateSettings'])->name('admin.certificates.settings.update');
     });
+    
+    // System Reports (Accessible by all Admins)
+    Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports.index');
 
     // Data Surat / Sertifikat
     Route::get('/certificates', [AdminController::class, 'certificates'])->name('admin.certificates.index');

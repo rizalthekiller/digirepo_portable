@@ -91,7 +91,7 @@ class AdminController extends Controller
             $query->whereIn('role', ['mahasiswa', 'dosen', 'guest']);
         }
 
-        $users = $query->latest()->paginate(20);
+        $users = $query->latest()->paginate(10);
         $departments = Department::with('faculty')->get();
         return view('admin.users.index', compact('users', 'departments'));
     }
@@ -173,7 +173,11 @@ class AdminController extends Controller
      */
     public function certificates(Request $request)
     {
-        $query = Thesis::where('status', 'approved')->with('user.department');
+        $query = Thesis::where('status', 'approved')
+            ->whereHas('user', function($q) {
+                $q->where('role', '!=', 'dosen');
+            })
+            ->with('user.department');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -187,7 +191,7 @@ class AdminController extends Controller
             });
         }
 
-        $theses = $query->latest()->paginate(15)->withQueryString();
+        $theses = $query->latest()->paginate(10)->withQueryString();
         return view('admin.certificates.index', compact('theses'));
     }
 
@@ -225,7 +229,7 @@ class AdminController extends Controller
             });
         }
 
-        $theses = $query->latest()->paginate(20)->withQueryString();
+        $theses = $query->latest()->paginate(10)->withQueryString();
         return view('admin.theses.index', compact('theses'));
     }
 
@@ -316,6 +320,7 @@ class AdminController extends Controller
             'site_logo_path'   => Setting::get('site_logo_path', ''),
             'site_favicon_path' => Setting::get('site_favicon_path', ''),
             'site_watermark_path' => Setting::get('site_watermark_path', ''),
+            'site_hero_title'  => Setting::get('site_hero_title', ''),
         ];
         return view('admin.settings.site', compact('settings'));
     }
@@ -328,7 +333,7 @@ class AdminController extends Controller
         $keys = [
             'site_name', 'site_tagline', 'site_institution',
             'site_address', 'site_city', 'site_email',
-            'site_website', 'site_footer_text',
+            'site_website', 'site_footer_text', 'site_hero_title',
         ];
 
         foreach ($keys as $key) {
@@ -473,15 +478,19 @@ class AdminController extends Controller
 
     public function dashboard()
     {
-        $stats = [
-            'pending_theses' => Thesis::where('status', 'pending')->count(),
-            'approved_theses' => Thesis::where('status', 'approved')->count(),
-            'total_users' => User::where('role', 'mahasiswa')->count(),
-            // Eager load theses to avoid N+1 query issues
-            'recent_submissions' => Thesis::with('user')->latest()->limit(5)->get(),
-        ];
+        $totalTheses = Thesis::count();
+        $pendingTheses = Thesis::where('status', 'pending')->count();
+        $totalUsers = User::where('role', 'mahasiswa')->count();
+        $totalFaculties = Faculty::count();
+        $recentTheses = Thesis::with('user')->latest()->limit(5)->get();
 
-        return view('admin.dashboard', compact('stats'));
+        return view('admin.dashboard', compact(
+            'totalTheses', 
+            'pendingTheses', 
+            'totalUsers', 
+            'totalFaculties', 
+            'recentTheses'
+        ));
     }
 
     public function queue(Request $request)
@@ -500,7 +509,7 @@ class AdminController extends Controller
             });
         }
 
-        $pendingTheses = $query->orderBy('created_at', 'asc')->paginate(15);
+        $pendingTheses = $query->orderBy('created_at', 'asc')->paginate(10);
 
         return view('admin.queue', compact('pendingTheses'));
     }
@@ -907,5 +916,68 @@ class AdminController extends Controller
         \App\Jobs\ResendCertificateJob::dispatch($thesis);
 
         return redirect()->back()->with('success', 'Email sertifikat sedang dikirim ulang di background.');
+    }
+    public function systemControl()
+    {
+        $maintenanceMode = app()->isDownForMaintenance();
+        return view('admin.system.control', compact('maintenanceMode'));
+    }
+
+    public function runArtisanCommand(Request $request)
+    {
+        $request->validate(['command' => 'required|string']);
+        
+        $command = $request->command;
+        $allowedCommands = [
+            'optimize:clear' => 'Membersihkan seluruh cache sistem',
+            'storage:link'   => 'Membuat tautan penyimpanan (Storage Link)',
+            'view:clear'     => 'Membersihkan cache view',
+            'config:clear'   => 'Membersihkan cache config',
+            'route:clear'    => 'Membersihkan cache route',
+            'cache:clear'    => 'Membersihkan cache aplikasi',
+        ];
+
+        if (!array_key_exists($command, $allowedCommands)) {
+            return back()->with('error', 'Perintah tidak diizinkan demi keamanan.');
+        }
+
+        try {
+            // Khusus untuk queue:work (tanpa --once), jalankan di background agar tidak hang
+            if ($command === 'queue:work') {
+                $phpPath = PHP_BINARY;
+                $artisanPath = base_path('artisan');
+                if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                    // Beri judul kosong "" di awal agar start tidak menganggap path PHP sebagai judul
+                    pclose(popen("start \"QueueWorker\" /B \"$phpPath\" \"$artisanPath\" queue:work > nul 2>&1", "r"));
+                } else {
+                    exec("\"$phpPath\" \"$artisanPath\" queue:work > /dev/null 2>&1 &");
+                }
+                return back()->with('success', 'Worker antrean berhasil dijalankan di latar belakang.');
+            }
+
+            \Illuminate\Support\Facades\Artisan::call($command);
+            $output = \Illuminate\Support\Facades\Artisan::output();
+            return back()->with('success', "Berhasil: {$allowedCommands[$command]}. Output: " . $output);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function toggleMaintenance(Request $request)
+    {
+        try {
+            if (app()->isDownForMaintenance()) {
+                \Illuminate\Support\Facades\Artisan::call('up');
+                return back()->with('success', 'Website berhasil diaktifkan kembali (UP Mode).');
+            } else {
+                \Illuminate\Support\Facades\Artisan::call('down', [
+                    '--secret' => 'zenith_access',
+                    '--render' => 'errors::503'
+                ]);
+                return back()->with('success', 'Website sekarang dalam Mode Perbaikan (Maintenance Mode). Anda bisa mengakses via: ' . url('/zenith_access'));
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengubah status server: ' . $e->getMessage());
+        }
     }
 }

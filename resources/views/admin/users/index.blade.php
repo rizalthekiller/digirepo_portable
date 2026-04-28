@@ -4,155 +4,149 @@
 
 @section('styles')
 <style>
-    .zenith-table thead th { border: none; padding: 20px; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; background: #f8fafc; border-radius: 12px; }
-    .zenith-table tbody td { border-bottom: 1px solid #f1f5f9; padding: 20px; font-size: 0.9rem; color: #334155; }
-    .zenith-table tbody tr:hover td { background: rgba(79, 70, 229, 0.02); }
+    .initial-circle { width: 35px; height: 35px; border-radius: 50%; background: #f1f5f9; color: var(--primary-color); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; border: 1px solid #e2e8f0; }
+    .nav-pills-custom { background: #f1f5f9; padding: 4px; border-radius: 12px; display: inline-flex; }
+    .nav-pills-custom .nav-link { border-radius: 8px; padding: 8px 20px; font-weight: 600; color: #64748b; border: none; font-size: 0.85rem; }
+    .nav-pills-custom .nav-link.active { background: white; color: var(--primary-color); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .extra-small { font-size: 0.7rem; }
     
-    .initial-circle { width: 42px; height: 42px; border-radius: 14px; background: linear-gradient(135deg, var(--zenith-primary), var(--zenith-secondary)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; }
-    .status-pill { padding: 6px 12px; border-radius: 10px; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+    /* Fix for dropdown being clipped by table-responsive */
+    .table-responsive {
+        overflow: visible !important;
+        padding-bottom: 80px;
+        margin-bottom: -80px;
+    }
 </style>
 @endsection
 
 @section('content')
-<div class="zenith-card animate-fade-in">
-    <div class="mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="fw-zenith mb-1">Database Pengguna</h4>
-                <p class="text-secondary small mb-0">Total <span class="text-primary fw-bold">{{ $users->total() }} akun</span> terdaftar.</p>
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3 border-0">
+        <div class="d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold text-dark">Database Pengguna</h6>
+            <div class="d-flex gap-2">
+                <div class="nav-pills-custom me-2">
+                    <a href="{{ route('admin.users.index') }}" class="nav-link {{ !request('role_group') ? 'active' : '' }}">Mahasiswa</a>
+                    <a href="{{ route('admin.users.index', ['role_group' => 'admins']) }}" class="nav-link {{ request('role_group') == 'admins' ? 'active' : '' }}">Administrator</a>
+                </div>
+                <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                    <i class="fas fa-plus me-1"></i> Tambah User
+                </button>
             </div>
-            <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-lg" style="background: linear-gradient(135deg, var(--zenith-primary), var(--zenith-secondary)); border: none;" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                <i class="fas fa-plus me-2"></i> Tambah User
-            </button>
         </div>
-
-        <!-- Role Tabs -->
-        <ul class="nav nav-pills gap-2 mb-4 p-2 bg-light rounded-4 w-fit">
-            <li class="nav-item">
-                <a class="nav-link rounded-3 px-4 fw-bold {{ !request('role_group') || request('role_group') == 'users' ? 'active shadow-sm bg-white text-primary' : 'text-secondary' }}" 
-                   href="{{ route('admin.users.index', ['role_group' => 'users']) }}">
-                   <i class="fas fa-users-viewfinder me-2"></i> Pengguna Umum
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link rounded-3 px-4 fw-bold {{ request('role_group') == 'admins' ? 'active shadow-sm bg-white text-primary' : 'text-secondary' }}" 
-                   href="{{ route('admin.users.index', ['role_group' => 'admins']) }}">
-                   <i class="fas fa-shield-halved me-2"></i> Tim Admin
-                </a>
-            </li>
-        </ul>
     </div>
-</div>
-
-<div class="zenith-card mt-4 animate-fade-in" style="animation-delay: 0.2s;">
-    <div class="table-responsive">
-        <table class="table zenith-table align-middle">
-            <thead>
-                <tr>
-                    <th style="width: 50px;">NO.</th>
-                    <th>IDENTITAS</th>
-                    <th>NIM / ID</th>
-                    <th>{{ request('role_group') == 'admins' ? 'HAK AKSES' : 'PROGRAM STUDI' }}</th>
-                    <th>STATUS</th>
-                    <th class="text-center">AKSI</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($users as $user)
-                <tr>
-                    <td class="text-secondary fw-800">{{ $users->firstItem() + $loop->index }}.</td>
-                    <td>
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="initial-circle shadow-sm">{{ substr($user->name, 0, 1) }}</div>
-                            <div>
-                                <div class="fw-800 text-dark small mb-0">{{ $user->name }}</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">{{ $user->email }}</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-modern align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 border-0 small fw-bold text-muted">NO.</th>
+                        <th class="border-0 small fw-bold text-muted">IDENTITAS</th>
+                        <th class="border-0 small fw-bold text-muted">NIM / ID</th>
+                        <th class="border-0 small fw-bold text-muted">{{ request('role_group') == 'admins' ? 'HAK AKSES' : 'PROGRAM STUDI' }}</th>
+                        <th class="border-0 small fw-bold text-muted">STATUS</th>
+                        <th class="text-center pe-4 border-0 small fw-bold text-muted">AKSI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($users as $user)
+                    <tr>
+                        <td class="ps-4 text-muted small">{{ $users->firstItem() + $loop->index }}.</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="initial-circle">{{ substr($user->name, 0, 1) }}</div>
+                                <div>
+                                    <div class="fw-bold text-dark">{{ $user->name }}</div>
+                                    <div class="text-muted extra-small">{{ $user->email }}</div>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td><span class="fw-700 text-dark small">{{ $user->nim ?: 'N/A' }}</span></td>
-                    <td>
-                        @if(request('role_group') == 'admins')
-                            <div class="fw-800 text-primary small text-uppercase" style="letter-spacing: 0.05em;">
-                                <i class="fas {{ $user->role == 'superadmin' ? 'fa-crown text-warning' : 'fa-user-shield' }} me-1"></i>
-                                {{ str_replace('superadmin', 'Super Admin', $user->role) }}
+                        </td>
+                        <td><span class="small fw-semibold text-secondary">{{ $user->nim ?: 'N/A' }}</span></td>
+                        <td>
+                            @if(request('role_group') == 'admins')
+                                <span class="badge bg-primary bg-opacity-10 text-primary border-0 small px-3 rounded-pill">{{ strtoupper($user->role) }}</span>
+                            @else
+                                <div class="small text-dark">{{ $user->department->name ?? '-' }}</div>
+                                <div class="extra-small text-muted">{{ $user->department->faculty->name ?? '' }}</div>
+                            @endif
+                        </td>
+                        <td>
+                            @if($user->is_verified)
+                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Verified</span>
+                            @else
+                                <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Pending</span>
+                            @endif
+                        </td>
+                        <td class="text-center pe-4">
+                            <div class="dropdown">
+                                <button class="btn btn-light btn-sm rounded-circle" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}"><i class="fas fa-edit me-2 text-primary"></i> Edit Profil</a></li>
+                                    @if(auth()->user()->role === 'superadmin')
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editPasswordModal{{ $user->id }}"><i class="fas fa-key me-2 text-warning"></i> Reset Password</a></li>
+                                    @endif
+                                    @if(!$user->is_verified)
+                                    <li>
+                                        <form action="{{ route('admin.users.verify', $user->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item"><i class="fas fa-check-circle me-2 text-success"></i> Verifikasi</button>
+                                        </form>
+                                    </li>
+                                    @endif
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form action="{{ route('admin.users.delete', $user->id) }}" method="POST" onsubmit="return confirm('Hapus user ini selamanya?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="dropdown-item text-danger"><i class="fas fa-trash me-2"></i> Hapus</button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </div>
-                        @else
-                            <div class="fw-700 text-dark small">{{ $user->department->name ?? '-' }}</div>
-                            <div class="text-secondary" style="font-size: 0.65rem;">{{ $user->department->faculty->name ?? '-' }}</div>
-                        @endif
-                    </td>
-                    <td>
-                        <div class="d-flex flex-column gap-1">
-                            <span class="status-pill w-fit {{ $user->is_verified ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning' }}">
-                                {{ $user->is_verified ? 'Verified' : 'Pending' }}
-                            </span>
-                            @if(request('role_group') != 'admins')
-                                <span class="text-uppercase small fw-800 text-muted" style="font-size: 0.6rem; letter-spacing: 0.1em;">{{ $user->role }}</span>
-                            @endif
-                        </div>
-                    </td>
-                    <td class="text-center">
-                        <div class="btn-group">
-                            @if(!$user->is_verified)
-                            <form action="{{ route('admin.users.verify', $user->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-link text-success p-2" title="Verify User"><i class="fas fa-check-circle"></i></button>
-                            </form>
-                            @endif
-                            
-                            <button class="btn btn-link text-primary p-2" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}" title="Edit Data"><i class="fas fa-edit"></i></button>
-                            
-                            @if(auth()->check() && auth()->user()->role === 'superadmin')
-                            <button class="btn btn-link text-warning p-2" data-bs-toggle="modal" data-bs-target="#editPasswordModal{{ $user->id }}" title="Ganti Password"><i class="fas fa-key"></i></button>
-                            @endif
-
-                            <form action="{{ route('admin.users.delete', $user->id) }}" method="POST" onsubmit="return confirm('Hapus user?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-link text-danger p-2" title="Hapus User"><i class="fas fa-trash"></i></button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
-
-    <div class="px-5 py-4 bg-light bg-opacity-50">
+    @if($users->hasPages())
+    <div class="card-footer bg-white border-0 py-3">
         {{ $users->links() }}
     </div>
+    @endif
 </div>
 
-<!-- Zenith Edit Modals -->
 @foreach($users as $user)
+<!-- Modal Edit User -->
 <div class="modal fade" id="editUserModal{{ $user->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-            <div class="modal-header border-0 p-5 pb-0">
-                <h4 class="fw-zenith mb-0">Edit Account</h4>
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="fw-bold mb-0">Edit Profil Pengguna</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
                 @csrf
-                <div class="modal-body p-5">
-                    <div class="row g-4">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="info-label-premium">Full Name</label>
-                            <input type="text" name="name" class="form-control border-0 bg-light p-3 rounded-3" value="{{ $user->name }}" required>
+                            <label class="form-label small fw-bold">Nama Lengkap</label>
+                            <input type="text" name="name" class="form-control rounded-3" value="{{ $user->name }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="info-label-premium">Institutional Email</label>
-                            <input type="email" name="email" class="form-control border-0 bg-light p-3 rounded-3" value="{{ $user->email }}" required>
+                            <label class="form-label small fw-bold">Email Institusi</label>
+                            <input type="email" name="email" class="form-control rounded-3" value="{{ $user->email }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="info-label-premium">NIM / Identity ID</label>
-                            <input type="text" name="nim" class="form-control border-0 bg-light p-3 rounded-3" value="{{ $user->nim }}">
+                            <label class="form-label small fw-bold">NIM / NIDN / ID</label>
+                            <input type="text" name="nim" class="form-control rounded-3" value="{{ $user->nim }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="info-label-premium">Access Role</label>
-                            <select name="role" class="form-control border-0 bg-light p-3 rounded-3">
+                            <label class="form-label small fw-bold">Hak Akses (Role)</label>
+                            <select name="role" class="form-select rounded-3">
                                 <option value="superadmin" {{ $user->role == 'superadmin' ? 'selected' : '' }}>Super Admin</option>
                                 <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
                                 <option value="dosen" {{ $user->role == 'dosen' ? 'selected' : '' }}>Dosen</option>
@@ -161,9 +155,9 @@
                             </select>
                         </div>
                         <div class="col-md-12">
-                            <label class="info-label-premium">Department / Major</label>
-                            <select name="department_id" class="form-control border-0 bg-light p-3 rounded-3">
-                                <option value="">-- Select Department --</option>
+                            <label class="form-label small fw-bold">Program Studi</label>
+                            <select name="department_id" class="form-select rounded-3">
+                                <option value="">-- Tanpa Program Studi --</option>
                                 @foreach($departments as $dept)
                                     <option value="{{ $dept->id }}" {{ $user->department_id == $dept->id ? 'selected' : '' }}>
                                         [{{ $dept->level }}] {{ $dept->name }} - {{ $dept->faculty->name ?? '-' }}
@@ -173,39 +167,39 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 p-5 pt-0">
-                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-lg" style="background: linear-gradient(135deg, var(--zenith-primary), var(--zenith-secondary)); border: none;">Save Changes</button>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-{{-- Modal Password hanya untuk Superadmin --}}
-@if(auth()->check() && auth()->user()->role === 'superadmin')
+<!-- Modal Reset Password -->
+@if(auth()->user()->role === 'superadmin')
 <div class="modal fade" id="editPasswordModal{{ $user->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-            <div class="modal-header border-0 p-5 pb-0">
-                <h4 class="fw-zenith mb-0">Reset Password</h4>
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="fw-bold mb-0 text-warning">Reset Password</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('admin.users.password', $user->id) }}" method="POST">
                 @csrf
-                <div class="modal-body p-5">
+                <div class="modal-body p-4">
                     <p class="text-secondary small mb-4">Ganti password untuk <strong>{{ $user->name }}</strong>. Password baru minimal 8 karakter.</p>
                     <div class="mb-3">
-                        <label class="info-label-premium">Password Baru</label>
-                        <div class="position-relative">
-                            <i class="fas fa-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                            <input type="password" name="password" class="form-control border-0 bg-light p-3 ps-5 rounded-3" placeholder="Masukkan password baru" required minlength="8">
+                        <label class="form-label small fw-bold">Password Baru</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-muted"></i></span>
+                            <input type="password" name="password" class="form-control bg-light border-start-0" placeholder="Masukkan password baru" required minlength="8">
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 p-5 pt-0">
+                <div class="modal-footer border-0 px-4 pb-4">
                     <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-warning rounded-pill px-5 py-2 fw-bold shadow-lg text-white" style="border: none;">Perbarui Password</button>
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 fw-bold shadow-sm text-white">Update Password</button>
                 </div>
             </form>
         </div>
@@ -214,33 +208,33 @@
 @endif
 @endforeach
 
-<!-- Zenith Add User Modal -->
+<!-- Modal Tambah User -->
 <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-            <div class="modal-header border-0 p-5 pb-0">
-                <h4 class="fw-zenith mb-0">Tambah User Baru</h4>
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="fw-bold mb-0">Tambah User Baru</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('admin.users.store') }}" method="POST">
                 @csrf
-                <div class="modal-body p-5">
-                    <div class="row g-4">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="info-label-premium">Nama Lengkap</label>
-                            <input type="text" name="name" class="form-control border-0 bg-light p-3 rounded-3" placeholder="Masukkan nama lengkap" required>
+                            <label class="form-label small fw-bold">Nama Lengkap</label>
+                            <input type="text" name="name" class="form-control rounded-3" placeholder="Masukkan nama lengkap" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="info-label-premium">Email Institusi</label>
-                            <input type="email" name="email" class="form-control border-0 bg-light p-3 rounded-3" placeholder="email@univ.ac.id" required>
+                            <label class="form-label small fw-bold">Email Institusi</label>
+                            <input type="email" name="email" class="form-control rounded-3" placeholder="email@univ.ac.id" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="info-label-premium">NIM / NIDN / ID</label>
-                            <input type="text" name="nim" class="form-control border-0 bg-light p-3 rounded-3" placeholder="Masukkan nomor identitas" required>
+                            <label class="form-label small fw-bold">NIM / NIDN / ID</label>
+                            <input type="text" name="nim" class="form-control rounded-3" placeholder="Masukkan nomor identitas" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="info-label-premium">Role Akses</label>
-                            <select name="role" class="form-control border-0 bg-light p-3 rounded-3" required>
+                            <label class="form-label small fw-bold">Role Akses</label>
+                            <select name="role" class="form-select rounded-3" required>
                                 <option value="mahasiswa">Mahasiswa</option>
                                 <option value="dosen">Dosen</option>
                                 <option value="guest">Guest</option>
@@ -249,8 +243,8 @@
                             </select>
                         </div>
                         <div class="col-md-12">
-                            <label class="info-label-premium">Program Studi</label>
-                            <select name="department_id" class="form-control border-0 bg-light p-3 rounded-3">
+                            <label class="form-label small fw-bold">Program Studi</label>
+                            <select name="department_id" class="form-select rounded-3">
                                 <option value="">-- Pilih Prodi --</option>
                                 @foreach($departments as $dept)
                                     <option value="{{ $dept->id }}">
@@ -260,14 +254,14 @@
                             </select>
                         </div>
                         <div class="col-md-12">
-                            <label class="info-label-premium">Password Sementara</label>
-                            <input type="password" name="password" class="form-control border-0 bg-light p-3 rounded-3" placeholder="Min. 8 karakter" required>
+                            <label class="form-label small fw-bold">Password Sementara</label>
+                            <input type="password" name="password" class="form-control rounded-3" placeholder="Min. 8 karakter" required>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 p-5 pt-0">
+                <div class="modal-footer border-0 px-4 pb-4">
                     <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-lg" style="background: linear-gradient(135deg, var(--zenith-primary), var(--zenith-secondary)); border: none;">Simpan User</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">Simpan User</button>
                 </div>
             </form>
         </div>
