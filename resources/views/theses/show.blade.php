@@ -156,7 +156,7 @@
                                         <div class="d-flex gap-2 w-100 w-sm-auto justify-content-center">
                                             @if(auth()->check() && !auth()->user()->isGuest())
                                                 {{-- User Biasa (Dosen/Mahasiswa/Admin) bisa download & baca --}}
-                                                @if($thesis->embargo_until && now()->lt($thesis->embargo_until) && auth()->id() !== $thesis->user_id && !auth()->user()->isAdmin())
+                                                @if($thesis->embargo_until && now()->lt($thesis->embargo_until) && auth()->id() !== $thesis->user_id && (!auth()->check() || !auth()->user()->isAdmin()))
                                                     <span class="badge bg-white text-warning border rounded-pill px-3 py-2 small shadow-sm w-100">
                                                         <i class="fas fa-lock me-1"></i> EMBARGO
                                                     </span>
@@ -207,6 +207,8 @@
                         <div class="sticky-top" style="top: 120px;">
                             <div class="row g-3">
                                 <div class="col-12">
+                                    <div class="meta-item">
+                                        <span class="label-meta">Penulis</span>
                                         <div class="value-meta">{{ $thesis->user->name ?? 'User Terhapus' }}</div>
                                     </div>
                                 </div>
