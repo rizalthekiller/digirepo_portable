@@ -190,15 +190,26 @@ class ThesisController extends Controller
             abort(403);
         }
 
-        $fullPath = Storage::disk('public')->path($file->file_path);
+        $cleanPath = $file->file_path;
+        $prefixes = ['/storage/', 'storage/', '/public/', 'public/'];
+        foreach ($prefixes as $prefix) {
+            if (str_starts_with($cleanPath, $prefix)) {
+                $cleanPath = substr($cleanPath, strlen($prefix));
+            }
+        }
+        $cleanPath = ltrim($cleanPath, '/');
+
+        $fullPath = Storage::disk('public')->path($cleanPath);
         
         if (!file_exists($fullPath)) {
+            \Log::error("Thesis File Not Found on Disk: " . $fullPath);
             abort(404, 'File fisik tidak ditemukan.');
         }
 
         return response()->file($fullPath, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . basename($file->file_path) . '"',
+            'Accept-Ranges' => 'bytes',
+            'Content-Disposition' => 'inline; filename="' . basename($cleanPath) . '"',
         ]);
     }
 
@@ -234,7 +245,16 @@ class ThesisController extends Controller
             'user_agent' => request()->userAgent(),
         ]);
 
-        return Storage::disk('public')->download($file->file_path, "{$file->label} - {$thesis->title}.pdf");
+        $cleanPath = $file->file_path;
+        $prefixes = ['/storage/', 'storage/', '/public/', 'public/'];
+        foreach ($prefixes as $prefix) {
+            if (str_starts_with($cleanPath, $prefix)) {
+                $cleanPath = substr($cleanPath, strlen($prefix));
+            }
+        }
+        $cleanPath = ltrim($cleanPath, '/');
+
+        return Storage::disk('public')->download($cleanPath, "{$file->label} - {$thesis->title}.pdf");
     }
 
     /**
