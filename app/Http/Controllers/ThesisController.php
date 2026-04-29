@@ -175,10 +175,19 @@ class ThesisController extends Controller
     /**
      * Stream a specific file from the thesis files collection (for Admin Review).
      */
-    public function streamFile(\App\Models\ThesisFile $file)
+    public function streamFile($uuid)
     {
         if (!auth()->check()) {
             abort(403, 'Silakan login terlebih dahulu untuk membaca dokumen.');
+        }
+
+        $file = \App\Models\ThesisFile::where('uuid', $uuid)->first();
+        if (!$file) {
+            $file = \App\Models\ThesisFile::find($uuid);
+        }
+
+        if (!$file) {
+            abort(404, 'Data file tidak ditemukan di database.');
         }
 
         $thesis = $file->thesis;
@@ -213,10 +222,19 @@ class ThesisController extends Controller
         ]);
     }
 
-    public function downloadFile(\App\Models\ThesisFile $file)
+    public function downloadFile($uuid)
     {
         if (!auth()->check()) {
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu untuk mengunduh dokumen.');
+        }
+
+        $file = \App\Models\ThesisFile::where('uuid', $uuid)->first();
+        if (!$file) {
+            $file = \App\Models\ThesisFile::find($uuid);
+        }
+
+        if (!$file) {
+            abort(404, 'Data file tidak ditemukan di database.');
         }
 
         $thesis = $file->thesis;
