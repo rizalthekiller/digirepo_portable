@@ -212,7 +212,7 @@
         </a>
         <div class="title-wrapper">
             <h1 class="thesis-title-text">{{ $thesis->title }}</h1>
-            <div class="thesis-meta-text">{{ $thesis->user->name }} • {{ $thesis->year }}</div>
+            <div class="thesis-meta-text">{{ $thesis->user->name ?? 'Anonim' }} • {{ $thesis->year }}</div>
         </div>
     </div>
 
@@ -226,7 +226,7 @@
     </div>
 
     <div class="header-right">
-        @if(!auth()->user()->isGuest())
+        @if(auth()->check() && !auth()->user()->isGuest())
             <a href="{{ route('theses.download', $thesis->id) }}" data-turbo="false" class="btn-download-premium">
                 <i class="fas fa-cloud-download-alt"></i> <span>Unduh PDF</span>
             </a>

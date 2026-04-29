@@ -71,6 +71,10 @@ class ThesisController extends Controller
         }
         $cleanPath = $cleanPath ?? '';
         
+        if (empty($cleanPath)) {
+            return redirect()->route('theses.show', $thesis->id)->with('error', 'Maaf, file PDF fisik belum tersedia untuk dokumen ini.');
+        }
+        
         $prefixes = ['/storage/', 'storage/', '/public/', 'public/'];
         foreach ($prefixes as $prefix) {
             if (str_starts_with($cleanPath, $prefix)) {
@@ -137,6 +141,10 @@ class ThesisController extends Controller
             $cleanPath = $thesis->files()->first()->file_path;
         }
         $cleanPath = $cleanPath ?? '';
+
+        if (empty($cleanPath)) {
+            return redirect()->route('theses.show', $thesis->id)->with('error', 'Maaf, file PDF fisik belum tersedia untuk dokumen ini.');
+        }
 
         $prefixes = ['/storage/', 'storage/', '/public/', 'public/'];
         foreach ($prefixes as $prefix) {
