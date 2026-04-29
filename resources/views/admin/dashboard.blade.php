@@ -68,8 +68,13 @@
                                     {{ $statusText }}
                                 </span>
                             </td>
-                            <td class="text-end pe-4 extra-small text-muted">
-                                {{ $thesis->created_at->diffForHumans() }}
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end align-items-center gap-2">
+                                    <span class="extra-small text-muted me-2">{{ $thesis->created_at->diffForHumans() }}</span>
+                                    <a href="{{ route('theses.show', $thesis->id) }}" target="_blank" class="btn btn-light btn-sm rounded-pill px-3 fw-bold shadow-none" style="font-size: 0.7rem;">
+                                        Detail
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         @empty
