@@ -32,7 +32,21 @@ class ProcessThesisApproval implements ShouldQueue
     public function handle(): void
     {
         // 1. Watermarking (Heavy Task)
-        $this->applyWatermark();
+        // Watermark legacy main file
+        if ($this->thesis->file_path) {
+            $this->applyWatermarkToPath($this->thesis->file_path);
+        }
+
+        // Watermark all multi-files
+        if ($this->thesis->files) {
+            foreach ($this->thesis->files as $file) {
+                if ($file->file_path) {
+                    $this->applyWatermarkToPath($file->file_path);
+                }
+            }
+        }
+        
+        $this->thesis->update(['is_watermarked' => true]);
 
         // 2. Generate Certificate PDF (HANYA UNTUK MAHASISWA)
         $pdfPath = null;
@@ -52,12 +66,15 @@ class ProcessThesisApproval implements ShouldQueue
         $this->thesis->update(['delivery_status' => 'sent']);
     }
 
-    protected function applyWatermark()
+    protected function applyWatermarkToPath($relativePath)
     {
-        $originalPath = storage_path('app/public/' . $this->thesis->file_path);
+        $originalPath = storage_path('app/public/' . $relativePath);
         if (!file_exists($originalPath)) return;
 
-        $tempPath = storage_path('app/public/' . str_replace('.pdf', '_watermarked.pdf', $this->thesis->file_path));
+        $tempDir = storage_path('app/temp');
+        if (!file_exists($tempDir)) mkdir($tempDir, 0777, true);
+        
+        $tempPath = $tempDir . '/' . str_replace('.pdf', '_watermarked.pdf', basename($relativePath));
         
         // Deteksi QPDF Portabel di dalam project
         $portableQpdf = base_path('bin/qpdf/qpdf.exe');
@@ -78,9 +95,8 @@ class ProcessThesisApproval implements ShouldQueue
             if ($success && file_exists($tempPath)) {
                 @unlink($originalPath);
                 @rename($tempPath, $originalPath);
-                $this->thesis->update(['is_watermarked' => true]);
             } else {
-                \Log::error("FPDI Merge failed for Thesis {$this->thesis->id}");
+                \Log::error("FPDI Merge failed for Path: {$relativePath}");
             }
 
             // STEP 3: Cleanup temporary watermark layer
