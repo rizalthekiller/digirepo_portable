@@ -90,6 +90,30 @@
                 </div>
             </div>
         </div>
+    @elseif(Auth::user()->isMahasiswa() && $latestThesis && $latestThesis->status == 'approved')
+        <div class="px-4 pb-4">
+            <div class="alert alert-success border-0 rounded-4 p-4 m-0 shadow-sm d-flex align-items-center" style="background: #ecfdf5;">
+                <div class="stat-icon-box bg-white shadow-sm me-4 text-success flex-shrink-0">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold text-success mb-1">Selamat! Karya Ilmiah Anda Telah Disetujui</h6>
+                    <p class="mb-0 text-dark opacity-75 small">Dokumen Anda sudah terverifikasi dan dipublikasikan di repositori. Anda tidak perlu mengunggah dokumen baru lagi.</p>
+                </div>
+            </div>
+        </div>
+    @elseif(Auth::user()->isMahasiswa() && $latestThesis && $latestThesis->status == 'pending')
+        <div class="px-4 pb-4">
+            <div class="alert alert-info border-0 rounded-4 p-4 m-0 shadow-sm d-flex align-items-center" style="background: #f0f9ff;">
+                <div class="stat-icon-box bg-white shadow-sm me-4 text-info flex-shrink-0">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold text-info mb-1">Pengajuan Sedang Diproses</h6>
+                    <p class="mb-0 text-dark opacity-75 small">Karya ilmiah Anda sedang dalam tahap peninjauan oleh Admin. Harap bersabar menunggu hasil verifikasi.</p>
+                </div>
+            </div>
+        </div>
     @endif
 
     <div class="table-responsive">
