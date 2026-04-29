@@ -21,8 +21,8 @@
             <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill small">
                 <i class="fas fa-info-circle me-2"></i> 
                 @php
-                    $hasStudent = $pendingTheses->contains(fn($t) => !$t->user->isDosen());
-                    $hasDosen = $pendingTheses->contains(fn($t) => $t->user->isDosen());
+                    $hasStudent = $pendingTheses->contains(fn($t) => $t->user && !$t->user->isDosen());
+                    $hasDosen = $pendingTheses->contains(fn($t) => $t->user && $t->user->isDosen());
                 @endphp
                 @if($hasStudent && !$hasDosen)
                     Verifikasi untuk menerbitkan sertifikat otomatis.
@@ -69,7 +69,7 @@
                         </td>
                         <td>
                             <div class="fw-bold text-dark small">{{ $thesis->user->name ?? 'User Terhapus' }}</div>
-                            <div class="text-muted extra-small">{{ $thesis->user->department->name ?? '-' }}</div>
+                            <div class="text-muted extra-small">{{ $thesis->user->department?->name ?? 'Umum/Non-Prodi' }}</div>
                         </td>
                         <td class="text-center">
                             @if($thesis->file_path)
@@ -108,12 +108,12 @@
                             @if($thesis->files && $thesis->files->count() > 0)
                                 <div class="mb-3 d-flex gap-2 overflow-auto pb-2">
                                     @foreach($thesis->files as $file)
-                                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill text-nowrap" onclick="document.getElementById('iframe-{{ $thesis->id }}').src='{{ route('theses.file.stream', $file->uuid) }}'">
+                                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill text-nowrap" onclick="document.getElementById('iframe-{{ $thesis->id }}').src='{{ route('theses.file.stream', $file->uuid ?? $file->id) }}'">
                                             <i class="fas fa-file-pdf me-1"></i> {{ $file->label }}
                                         </button>
                                     @endforeach
                                 </div>
-                                <iframe id="iframe-{{ $thesis->id }}" src="{{ route('theses.file.stream', $thesis->files->first()->uuid) }}" width="100%" height="550px" style="border: none; border-radius: 12px; background: white;"></iframe>
+                                <iframe id="iframe-{{ $thesis->id }}" src="{{ route('theses.file.stream', $thesis->files->first()->uuid ?? $thesis->files->first()->id) }}" width="100%" height="550px" style="border: none; border-radius: 12px; background: white;"></iframe>
                             @elseif($thesis->file_path)
                                 <iframe src="{{ route('theses.stream', $thesis->id) }}" width="100%" height="600px" style="border: none; border-radius: 12px; background: white;"></iframe>
                             @else
@@ -139,6 +139,10 @@
                             <div class="mb-3">
                                 <label class="form-label small fw-bold">Abstrak</label>
                                 <textarea name="abstract" class="form-control rounded-3 small" rows="5" required>{{ $thesis->abstract ?? '' }}</textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold">Nomor Urut Sertifikat (Opsional)</label>
+                                <input type="number" name="cert_number_seq" class="form-control rounded-3 small" placeholder="Contoh: 001">
                             </div>
                             <div class="mb-4">
                                 <label class="form-label small fw-bold">Masa Embargo (Opsional)</label>
@@ -172,7 +176,7 @@
                 @csrf
                 <div class="modal-body p-4">
                     <p class="text-muted small">Berikan alasan mengapa dokumen ini ditolak. Pesan ini akan dikirimkan ke mahasiswa.</p>
-                    <textarea name="rejection_note" class="form-control rounded-3" rows="4" placeholder="Contoh: File PDF rusak, judul tidak sesuai..." required></textarea>
+                    <textarea name="reason" class="form-control rounded-3" rows="4" placeholder="Contoh: File PDF rusak, judul tidak sesuai..." required></textarea>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>

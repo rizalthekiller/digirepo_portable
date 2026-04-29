@@ -542,9 +542,9 @@ class AdminController extends Controller
         $fullNumber = null;
         $certContent = null;
 
-        if (!$thesis->user->isDosen()) {
+        if ($thesis->user && !$thesis->user->isDosen()) {
             $format = Setting::get('cert_number_format', 'Perpus.B-{ID}/Un.21/1/PP.009/{ROMAN}/{YEAR}');
-            $seq = $request->cert_number_seq;
+            $seq = $request->cert_number_seq ?? '000';
             $romanMonths = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
             
             $fullNumber = str_replace(
@@ -565,7 +565,9 @@ class AdminController extends Controller
         ]);
 
         // Trigger Student Notification
-        $thesis->user->notify(new \App\Notifications\ThesisNotification($thesis, 'approved'));
+        if ($thesis->user) {
+            $thesis->user->notify(new \App\Notifications\ThesisNotification($thesis, 'approved'));
+        }
 
         // Dispatch Job to Background (Handles Watermark & Email)
         ProcessThesisApproval::dispatch($thesis);
@@ -582,7 +584,9 @@ class AdminController extends Controller
         ]);
 
         // Trigger Student Notification
-        $thesis->user->notify(new \App\Notifications\ThesisNotification($thesis, 'rejected'));
+        if ($thesis->user) {
+            $thesis->user->notify(new \App\Notifications\ThesisNotification($thesis, 'rejected'));
+        }
         
         return redirect()->back()->with('success', 'Skripsi telah ditolak.');
     }
