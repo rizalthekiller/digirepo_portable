@@ -105,8 +105,17 @@
                 <div class="row g-4">
                     <div class="col-lg-8">
                         <div class="p-2 bg-light rounded-4 h-100 border" style="min-height: 500px;">
-                            @if($thesis->file_path)
-                                <iframe src="{{ route('theses.stream', $thesis->id) }}" width="100%" height="600px" style="border: none; border-radius: 12px;"></iframe>
+                            @if($thesis->files && $thesis->files->count() > 0)
+                                <div class="mb-3 d-flex gap-2 overflow-auto pb-2">
+                                    @foreach($thesis->files as $file)
+                                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill text-nowrap" onclick="document.getElementById('iframe-{{ $thesis->id }}').src='{{ route('theses.file.stream', $file->id) }}'">
+                                            <i class="fas fa-file-pdf me-1"></i> {{ $file->label }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                                <iframe id="iframe-{{ $thesis->id }}" src="{{ route('theses.file.stream', $thesis->files->first()->id) }}" width="100%" height="550px" style="border: none; border-radius: 12px; background: white;"></iframe>
+                            @elseif($thesis->file_path)
+                                <iframe src="{{ route('theses.stream', $thesis->id) }}" width="100%" height="600px" style="border: none; border-radius: 12px; background: white;"></iframe>
                             @else
                                 <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center py-5">
                                     <i class="fas fa-file-excel fa-4x text-muted mb-3 opacity-25"></i>

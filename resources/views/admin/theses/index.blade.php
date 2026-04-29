@@ -188,7 +188,22 @@
                             <div class="card-body p-4">
                                 <h6 class="fw-bold mb-3"><i class="fas fa-paperclip me-2 text-primary"></i>Berkas Utama</h6>
                                 
-                                @if($thesis->file_path)
+                                @if($thesis->files && $thesis->files->count() > 0)
+                                    <div class="d-flex flex-column gap-2 mb-3">
+                                    @foreach($thesis->files as $file)
+                                        <div class="p-2 bg-white rounded-3 shadow-sm d-flex align-items-center justify-content-between border">
+                                            <div class="d-flex align-items-center gap-3 overflow-hidden">
+                                                <i class="fas fa-file-pdf text-danger fs-5"></i>
+                                                <div class="text-truncate">
+                                                    <div class="fw-bold small text-dark text-truncate">{{ $file->label }}</div>
+                                                    <div class="extra-small text-muted">PDF File</div>
+                                                </div>
+                                            </div>
+                                            <a href="{{ route('theses.file.stream', $file->id) }}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3 text-nowrap">Lihat</a>
+                                        </div>
+                                    @endforeach
+                                    </div>
+                                @elseif($thesis->file_path)
                                     <div class="p-3 bg-white rounded-3 shadow-sm mb-3 d-flex align-items-center justify-content-between">
                                         <div class="d-flex align-items-center gap-3">
                                             <i class="fas fa-file-pdf text-danger fs-4"></i>
