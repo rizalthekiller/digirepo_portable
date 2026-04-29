@@ -107,7 +107,7 @@
                             <h4 class="fw-800 mb-4 d-flex align-items-center">
                                 <i class="fas fa-quote-left text-primary-light me-3 opacity-25"></i> Abstrak
                             </h4>
-                            <div class="abstract-text text-justify" style="font-size: 1rem; line-height: 1.7;">
+                            <div class="abstract-text" style="font-size: 1rem; line-height: 1.7; text-align: justify;">
                                 {{ $thesis->abstract }}
                             </div>
                         </div>

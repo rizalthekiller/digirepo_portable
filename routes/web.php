@@ -20,6 +20,9 @@ Route::get('/faq', function () {
     return view('faq');
 })->name('faq');
 
+// OAI-PMH Endpoint for Metadata Harvesting
+Route::get('/oai', [App\Http\Controllers\OaiController::class, 'index'])->name('oai.index');
+
 // Fallback route to serve storage files if symlink is missing
 Route::get('/storage/{path}', function ($path) {
     $fullPath = storage_path('app/public/' . $path);

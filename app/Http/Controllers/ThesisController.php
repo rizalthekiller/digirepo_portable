@@ -291,6 +291,7 @@ class ThesisController extends Controller
         $facultySlug = \Illuminate\Support\Str::slug($user->department->faculty->name ?? 'Umum');
         $deptSlug = \Illuminate\Support\Str::slug($user->department->name ?? 'Umum');
         $nim = preg_replace('/[^A-Za-z0-9\-]/', '', $user->nim ?: 'Unknown');
+        $nameSlug = \Illuminate\Support\Str::slug($user->name);
 
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $index => $file) {
@@ -301,7 +302,11 @@ class ThesisController extends Controller
                 $tempPath = $file->store('temp-uploads', 'local');
                 
                 // Final destination logic
-                $finalPath = "{$year}/{$typeSlug}/{$facultySlug}/{$deptSlug}/{$nim}_{$labelSlug}.pdf";
+                if (in_array($request->type, ['Skripsi', 'Thesis', 'Disertasi'])) {
+                    $finalPath = "{$year}/{$typeSlug}/{$facultySlug}/{$deptSlug}/{$nim}/{$nim}_{$labelSlug}.pdf";
+                } else {
+                    $finalPath = "{$typeSlug}/{$year}/{$nim}/{$nim}_{$nameSlug}_{$labelSlug}.pdf";
+                }
                 
                 $filesData[] = [
                     'temp' => $tempPath,

@@ -108,6 +108,37 @@
                             <label class="form-label small fw-bold">Teks Footer</label>
                             <textarea name="site_footer_text" class="form-control rounded-3" rows="2">{{ $settings['site_footer_text'] }}</textarea>
                         </div>
+                        
+                        <div class="col-12 mt-3">
+                            <hr class="opacity-10 mb-4">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-server me-2 text-warning"></i>Mode Aplikasi (Environment)</h6>
+                            <div class="p-4 border rounded-4 bg-light">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="border rounded-3 bg-white p-3 d-flex gap-3 hover-lift cursor-pointer w-100 h-100 {{ app()->environment('production') ? 'border-primary shadow-sm' : '' }}" for="env_production" style="transition: all 0.3s ease;">
+                                            <div class="pt-1">
+                                                <input class="form-check-input m-0" style="width: 1.2rem; height: 1.2rem;" type="radio" name="app_environment" id="env_production" value="production" {{ app()->environment('production') ? 'checked' : '' }}>
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold text-dark d-block mb-1">Production Mode</span>
+                                                <span class="text-muted small">Mode rilis. Aplikasi berjalan optimal dan error disembunyikan.</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="border rounded-3 bg-white p-3 d-flex gap-3 hover-lift cursor-pointer w-100 h-100 {{ app()->environment('local', 'developer') ? 'border-primary shadow-sm' : '' }}" for="env_developer" style="transition: all 0.3s ease;">
+                                            <div class="pt-1">
+                                                <input class="form-check-input m-0" style="width: 1.2rem; height: 1.2rem;" type="radio" name="app_environment" id="env_developer" value="developer" {{ app()->environment('local', 'developer') ? 'checked' : '' }}>
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold text-dark d-block mb-1">Developer Mode</span>
+                                                <span class="text-muted small">Mode pengembang. Menampilkan pesan error mendetail jika terjadi bug.</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-sm">

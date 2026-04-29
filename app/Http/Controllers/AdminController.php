@@ -366,6 +366,29 @@ class AdminController extends Controller
             }
         }
 
+        // Handle App Environment Toggle
+        if ($request->has('app_environment')) {
+            $envPath = base_path('.env');
+            if (file_exists($envPath)) {
+                $envContent = file_get_contents($envPath);
+                
+                if ($request->app_environment === 'production') {
+                    $envContent = preg_replace('/^APP_ENV=.*$/m', 'APP_ENV=production', $envContent);
+                    $envContent = preg_replace('/^APP_DEBUG=.*$/m', 'APP_DEBUG=false', $envContent);
+                } elseif ($request->app_environment === 'developer') {
+                    $envContent = preg_replace('/^APP_ENV=.*$/m', 'APP_ENV=local', $envContent);
+                    $envContent = preg_replace('/^APP_DEBUG=.*$/m', 'APP_DEBUG=true', $envContent);
+                }
+                
+                file_put_contents($envPath, $envContent);
+                try {
+                    \Illuminate\Support\Facades\Artisan::call('config:clear');
+                } catch (\Exception $e) {
+                    // Ignore exceptions
+                }
+            }
+        }
+
         $message = $uploadedCount > 0 
             ? "Pengaturan berhasil disimpan ($uploadedCount file diperbarui dengan Smart Upload)."
             : "Pengaturan situs berhasil disimpan.";
@@ -594,13 +617,20 @@ class AdminController extends Controller
         if ($request->hasFile('pdf_file')) {
             $user = $thesis->user;
             $dept = $user->department;
-            $facName = \Illuminate\Support\Str::slug($dept->faculty->name ?? 'Unknown_Faculty', '_');
-            $deptName = \Illuminate\Support\Str::slug($dept->name ?? 'Unknown_Dept', '_');
-            $typePath = \Illuminate\Support\Str::slug($request->type, '_');
+            $facName = \Illuminate\Support\Str::slug($dept->faculty->name ?? 'Unknown_Faculty', '-');
+            $deptName = \Illuminate\Support\Str::slug($dept->name ?? 'Unknown_Dept', '-');
+            $typePath = \Illuminate\Support\Str::slug($request->type, '-');
             $yearPath = $request->year;
+            $nim = \Illuminate\Support\Str::slug($user->nim ?? 'Unknown_NIM', '-');
+            $nameSlug = \Illuminate\Support\Str::slug($user->name, '-');
             
-            $folderPath = "theses/{$typePath}/{$yearPath}/{$facName}/{$deptName}";
-            $fileName = \Illuminate\Support\Str::slug($user->nim ?? 'Unknown_NIM', '_') . ".pdf";
+            if (in_array($request->type, ['Skripsi', 'Thesis', 'Disertasi'])) {
+                $folderPath = "{$yearPath}/{$typePath}/{$facName}/{$deptName}/{$nim}";
+                $fileName = "{$nim}.pdf";
+            } else {
+                $folderPath = "{$typePath}/{$yearPath}/{$nim}";
+                $fileName = "{$nim}_{$nameSlug}.pdf";
+            }
             
             // Smart Replace: Delete old file if exists
             if ($thesis->file_path) {
@@ -680,13 +710,20 @@ class AdminController extends Controller
 
         // Generate Path - Logic matched with digirepo original (Type/Year/Faculty/Dept/Nim.pdf)
         $dept = \App\Models\Department::with('faculty')->find($request->department_id);
-        $facName = Str::slug($dept->faculty->name ?? 'Unknown_Faculty', '_');
-        $deptName = Str::slug($dept->name, '_');
-        $typePath = Str::slug($request->type, '_');
+        $facName = Str::slug($dept->faculty->name ?? 'Unknown_Faculty', '-');
+        $deptName = Str::slug($dept->name, '-');
+        $typePath = Str::slug($request->type, '-');
         $yearPath = $request->year;
+        $nim = Str::slug($request->nim, '-');
+        $nameSlug = Str::slug($request->student_name, '-');
         
-        $folderPath = "theses/{$typePath}/{$yearPath}/{$facName}/{$deptName}";
-        $fileName = Str::slug($request->nim, '_') . ".pdf";
+        if (in_array($request->type, ['Skripsi', 'Thesis', 'Disertasi'])) {
+            $folderPath = "{$yearPath}/{$typePath}/{$facName}/{$deptName}/{$nim}";
+            $fileName = "{$nim}.pdf";
+        } else {
+            $folderPath = "{$typePath}/{$yearPath}/{$nim}";
+            $fileName = "{$nim}_{$nameSlug}.pdf";
+        }
         
         $filePath = $request->file('pdf_file')->storeAs($folderPath, $fileName, 'public');
 
