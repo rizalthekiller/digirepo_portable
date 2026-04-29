@@ -31,6 +31,10 @@ class ThesisController extends Controller
      */
     public function read(Thesis $thesis)
     {
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu untuk membaca dokumen.');
+        }
+
         $user = auth()->user();
         $isOwner = auth()->check() && auth()->id() === $thesis->user_id;
         $isAdmin = auth()->check() && ($user && $user->isAdmin());
@@ -52,6 +56,10 @@ class ThesisController extends Controller
      */
     public function stream(Thesis $thesis)
     {
+        if (!auth()->check()) {
+            abort(403, 'Silakan login terlebih dahulu untuk membaca dokumen.');
+        }
+
         $user = auth()->user();
         $isOwner = auth()->check() && auth()->id() === $thesis->user_id;
         $isAdmin = auth()->check() && ($user && $user->isAdmin());
@@ -109,13 +117,17 @@ class ThesisController extends Controller
      */
     public function download(Thesis $thesis)
     {
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu untuk mengunduh dokumen.');
+        }
+
         $user = auth()->user();
-        $isOwner = auth()->check() && auth()->id() === $thesis->user_id;
-        $isAdmin = auth()->check() && $user->isAdmin();
+        $isOwner = auth()->id() === $thesis->user_id;
+        $isAdmin = $user->isAdmin();
 
         // Guest cannot download
-        if (auth()->check() && $user->isGuest()) {
-            abort(403, 'Guest tidak diperbolehkan mengunduh dokumen.');
+        if ($user->isGuest()) {
+            abort(403, 'Akun Tamu (Guest) tidak diperbolehkan mengunduh dokumen, hanya dapat membaca secara online.');
         }
 
         if ($thesis->status !== 'approved' && !$isOwner && !$isAdmin) {
@@ -165,6 +177,10 @@ class ThesisController extends Controller
      */
     public function streamFile(\App\Models\ThesisFile $file)
     {
+        if (!auth()->check()) {
+            abort(403, 'Silakan login terlebih dahulu untuk membaca dokumen.');
+        }
+
         $thesis = $file->thesis;
         $user = auth()->user();
         $isOwner = auth()->check() && auth()->id() === $thesis->user_id;
@@ -188,13 +204,17 @@ class ThesisController extends Controller
 
     public function downloadFile(\App\Models\ThesisFile $file)
     {
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu untuk mengunduh dokumen.');
+        }
+
         $thesis = $file->thesis;
         $user = auth()->user();
-        $isOwner = auth()->check() && auth()->id() === $thesis->user_id;
-        $isAdmin = auth()->check() && $user && $user->isAdmin();
+        $isOwner = auth()->id() === $thesis->user_id;
+        $isAdmin = $user->isAdmin();
 
-        if (auth()->check() && $user->isGuest()) {
-            abort(403, 'Guest tidak diperbolehkan mengunduh dokumen.');
+        if ($user->isGuest()) {
+            abort(403, 'Akun Tamu (Guest) tidak diperbolehkan mengunduh dokumen, hanya dapat membaca secara online.');
         }
 
         if ($thesis->status !== 'approved' && !$isOwner && !$isAdmin) {
