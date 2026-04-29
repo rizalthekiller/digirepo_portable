@@ -326,8 +326,8 @@ class ThesisController extends Controller
         $filesData = [];
         $year = $request->year;
         $typeSlug = \Illuminate\Support\Str::slug($request->type);
-        $facultySlug = \Illuminate\Support\Str::slug($user->department->faculty->name ?? 'Umum');
-        $deptSlug = \Illuminate\Support\Str::slug($user->department->name ?? 'Umum');
+        $facultySlug = \Illuminate\Support\Str::slug($user->department?->faculty?->name ?? 'Umum');
+        $deptSlug = \Illuminate\Support\Str::slug($user->department?->name ?? 'Umum');
         $nim = preg_replace('/[^A-Za-z0-9\-]/', '', $user->nim ?: 'Unknown');
         $nameSlug = \Illuminate\Support\Str::slug($user->name);
 
