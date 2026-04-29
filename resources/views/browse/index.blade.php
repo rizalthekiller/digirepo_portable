@@ -149,8 +149,8 @@
                             <a href="{{ url('/theses/' . $thesis->id) }}" class="text-dark text-decoration-none hover-text-primary transition-all">{{ $thesis->title }}</a>
                         </h4>
                         <div class="d-flex flex-wrap gap-4 text-secondary small mb-3 fw-600">
-                            <span><i class="fas fa-user-circle me-2 text-primary-light"></i> {{ $thesis->user->name }}</span>
-                            @if(!$thesis->user->isDosen())
+                            <span><i class="fas fa-user-circle me-2 text-primary-light"></i> {{ $thesis->user->name ?? 'User Terhapus' }}</span>
+                            @if($thesis->user && !$thesis->user->isDosen())
                                 <span><i class="fas fa-university me-2 text-primary-light"></i> {{ $thesis->user->department->name ?? '-' }}</span>
                             @endif
                         </div>

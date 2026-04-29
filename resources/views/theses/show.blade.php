@@ -5,7 +5,7 @@
 @section('extra_meta')
     <!-- Dublin Core Metadata Standard -->
     <meta name="DC.title" content="{{ $thesis->title }}">
-    <meta name="DC.creator" content="{{ $thesis->user->name }}">
+    <meta name="DC.creator" content="{{ $thesis->user->name ?? 'Anonim' }}">
     <meta name="DC.subject" content="{{ $thesis->keywords }}">
     <meta name="DC.description" content="{{ Str::limit($thesis->abstract, 300) }}">
     <meta name="DC.publisher" content="Universitas Islam Negeri Sultan Aji Muhammad Idris Samarinda">
@@ -18,7 +18,7 @@
     
     <!-- Highwire Press Tags (For Google Scholar) -->
     <meta name="citation_title" content="{{ $thesis->title }}">
-    <meta name="citation_author" content="{{ $thesis->user->name }}">
+    <meta name="citation_author" content="{{ $thesis->user->name ?? 'Anonim' }}">
     <meta name="citation_publication_date" content="{{ $thesis->year }}">
     <meta name="citation_pdf_url" content="{{ route('theses.download', $thesis->id) }}">
     <meta name="citation_abstract_html_url" content="{{ url()->current() }}">
@@ -207,15 +207,13 @@
                         <div class="sticky-top" style="top: 120px;">
                             <div class="row g-3">
                                 <div class="col-12">
-                                    <div class="meta-item">
-                                        <span class="label-meta">Penulis</span>
-                                        <div class="value-meta">{{ $thesis->user->name }}</div>
+                                        <div class="value-meta">{{ $thesis->user->name ?? 'User Terhapus' }}</div>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="meta-item">
                                         <span class="label-meta">NIM / Identitas</span>
-                                        <div class="value-meta">{{ $thesis->user->nim ?: '-' }}</div>
+                                        <div class="value-meta">{{ $thesis->user->nim ?? '-' }}</div>
                                     </div>
                                 </div>
                                 @if($thesis->supervisor_name && in_array($thesis->type, ['Skripsi', 'Thesis', 'Disertasi']))
@@ -291,7 +289,7 @@
                                 </div>
                                 @endif
 
-                                @if(!$thesis->user->isDosen())
+                                @if($thesis->user && !$thesis->user->isDosen())
                                 <div class="col-12">
                                     <div class="meta-item">
                                         <span class="label-meta">Program Studi</span>
