@@ -6,7 +6,7 @@
 <style>
     body { background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); min-height: 100vh; }
     .register-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 50px 0; }
-    .register-card { max-width: 600px; width: 100%; background: white; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); padding: 50px; }
+    .register-card { max-width: 600px; width: 90%; background: white; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); padding: 50px; }
     .form-control, .form-select { border-radius: 12px; padding: 12px 20px; border: 1px solid #e2e8f0; background: #f8fafc; }
 </style>
 @endsection

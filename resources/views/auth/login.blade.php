@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="auth-wrapper d-flex align-items-center justify-content-center animate-fade-in" style="min-height: calc(100vh - 100px); background: #f1f5f9; margin-top: -20px;">
-    <div class="glass-card shadow-lg border-0" style="max-width: 480px; width: 90%; padding: 50px; border-radius: 40px; background: #ffffff;">
+    <div class="glass-card shadow-lg border-0" style="max-width: 600px; width: 90%; padding: 50px; border-radius: 30px; background: #ffffff;">
         <div class="text-center mb-5">
             <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
                 <i class="fas fa-lock fa-2x"></i>
