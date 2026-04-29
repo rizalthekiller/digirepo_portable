@@ -145,8 +145,8 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
             
-            // Cek apakah email sudah diverifikasi (Kecualikan admin & superadmin)
-            if (!$user->isAdmin() && $user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail()) {
+            // Cek apakah email sudah diverifikasi (Kecualikan admin, superadmin, & user yg sudah di-verify admin)
+            if (!$user->isAdmin() && !$user->is_verified && $user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail()) {
                 Auth::logout();
                 return back()->withErrors([
                     'email' => 'Silakan verifikasi alamat email Anda terlebih dahulu sebelum login. Link verifikasi telah dikirimkan ke kotak masuk Anda.',
