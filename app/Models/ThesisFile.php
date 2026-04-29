@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 class ThesisFile extends Model
 {
     protected $fillable = [
-        'thesis_id', 'label', 'file_path', 'is_public', 'order'
+        'thesis_id', 'label', 'file_path', 'is_public', 'order', 'uuid'
     ];
 
     /**
@@ -27,11 +27,26 @@ class ThesisFile extends Model
     {
         parent::boot();
 
+        // Auto-generate UUID
+        static::creating(function ($file) {
+            if (empty($file->uuid)) {
+                $file->uuid = \Illuminate\Support\Str::uuid()->toString();
+            }
+        });
+
         // Smart Delete: Hapus file fisik saat record dihapus
         static::deleting(function ($file) {
             if ($file->file_path && Storage::disk('public')->exists($file->file_path)) {
                 Storage::disk('public')->delete($file->file_path);
             }
         });
+    }
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }

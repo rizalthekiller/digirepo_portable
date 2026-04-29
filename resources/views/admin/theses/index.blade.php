@@ -199,7 +199,7 @@
                                                     <div class="extra-small text-muted">PDF File</div>
                                                 </div>
                                             </div>
-                                            <a href="{{ route('theses.file.stream', $file->id) }}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3 text-nowrap">Lihat</a>
+                                            <a href="{{ route('theses.file.stream', $file->uuid) }}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3 text-nowrap">Lihat</a>
                                         </div>
                                     @endforeach
                                     </div>
@@ -282,12 +282,12 @@
                                     @if($thesis->files && $thesis->files->count() > 0)
                                         <div class="mb-3 d-flex gap-2 overflow-auto pb-2">
                                             @foreach($thesis->files as $file)
-                                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill text-nowrap" onclick="document.getElementById('iframe-index-{{ $thesis->id }}').src='{{ route('theses.file.stream', $file->id) }}'">
+                                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill text-nowrap" onclick="document.getElementById('iframe-index-{{ $thesis->id }}').src='{{ route('theses.file.stream', $file->uuid) }}'">
                                                     <i class="fas fa-file-pdf me-1"></i> {{ $file->label }}
                                                 </button>
                                             @endforeach
                                         </div>
-                                        <iframe id="iframe-index-{{ $thesis->id }}" src="{{ route('theses.file.stream', $thesis->files->first()->id) }}" width="100%" height="500px" style="border: none; border-radius: 12px; background: white;"></iframe>
+                                        <iframe id="iframe-index-{{ $thesis->id }}" src="{{ route('theses.file.stream', $thesis->files->first()->uuid) }}" width="100%" height="500px" style="border: none; border-radius: 12px; background: white;"></iframe>
                                     @elseif($thesis->file_path)
                                         <iframe src="{{ route('theses.stream', $thesis->id) }}" width="100%" height="550px" style="border: none; border-radius: 12px; background: white;"></iframe>
                                     @else

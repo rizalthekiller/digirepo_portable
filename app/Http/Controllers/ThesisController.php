@@ -66,6 +66,11 @@ class ThesisController extends Controller
         }
 
         $cleanPath = $thesis->file_path;
+        if (empty($cleanPath) && $thesis->files()->count() > 0) {
+            $cleanPath = $thesis->files()->first()->file_path;
+        }
+        $cleanPath = $cleanPath ?? '';
+        
         $prefixes = ['/storage/', 'storage/', '/public/', 'public/'];
         foreach ($prefixes as $prefix) {
             if (str_starts_with($cleanPath, $prefix)) {
@@ -128,6 +133,11 @@ class ThesisController extends Controller
 
         // Clean Path logic for download
         $cleanPath = $thesis->file_path;
+        if (empty($cleanPath) && $thesis->files()->count() > 0) {
+            $cleanPath = $thesis->files()->first()->file_path;
+        }
+        $cleanPath = $cleanPath ?? '';
+
         $prefixes = ['/storage/', 'storage/', '/public/', 'public/'];
         foreach ($prefixes as $prefix) {
             if (str_starts_with($cleanPath, $prefix)) {

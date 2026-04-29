@@ -164,7 +164,7 @@
                                                     <a href="{{ route('theses.read', $thesis->id) }}" class="btn btn-outline-primary rounded-pill btn-sm px-3 fw-bold w-100">
                                                         <i class="fas fa-eye me-1"></i> BACA
                                                     </a>
-                                                    <a href="{{ route('theses.download.file', $file->id) }}" data-turbo="false" class="btn btn-danger rounded-pill btn-sm px-3 fw-bold shadow-sm w-100">
+                                                    <a href="{{ route('theses.download.file', $file->uuid) }}" data-turbo="false" class="btn btn-danger rounded-pill btn-sm px-3 fw-bold shadow-sm w-100">
                                                         <i class="fas fa-download me-1"></i> UNDUH
                                                     </a>
                                                 @endif
