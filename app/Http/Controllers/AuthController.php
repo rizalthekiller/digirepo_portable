@@ -92,12 +92,10 @@ class AuthController extends Controller
             'department_id' => in_array($request->role, ['guest', 'dosen']) ? null : $request->department_id,
         ]);
 
-        $message = 'Pendaftaran berhasil.';
-        if ($user->role === 'guest') {
-            $message .= ' Anda sekarang dapat menelusuri repositori.';
-        } else {
-            $message .= ' Silakan tunggu verifikasi admin sebelum dapat mengunggah dokumen.';
-        }
+        // Kirim email verifikasi standar Laravel
+        event(new \Illuminate\Auth\Events\Registered($user));
+
+        $message = 'Pendaftaran berhasil. Silakan cek email Anda untuk melakukan verifikasi akun sebelum login.';
 
         return redirect('/login')->with('success', $message);
     }
@@ -145,9 +143,19 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            
+            // Cek apakah email sudah diverifikasi
+            if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail()) {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Silakan verifikasi alamat email Anda terlebih dahulu sebelum login. Link verifikasi telah dikirimkan ke kotak masuk Anda.',
+                ])->onlyInput('email');
+            }
+
             $request->session()->regenerate();
             
-            if (Auth::user()->isAdmin()) {
+            if ($user->isAdmin()) {
                 return redirect()->intended(route('admin.dashboard'));
             }
             

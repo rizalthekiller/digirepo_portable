@@ -50,7 +50,28 @@ Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->n
 Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
 Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
-Route::get('/verify/{hash}', [HomeController::class, 'verify'])->name('verify');
+
+// Custom Email Verification Route (Tanpa middleware auth agar bisa diakses saat tidak login)
+Route::get('/email/verify/{id}/{hash}', function ($id, $hash, \Illuminate\Http\Request $request) {
+    $user = \App\Models\User::findOrFail($id);
+
+    if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        abort(403, 'Tautan verifikasi tidak valid.');
+    }
+
+    if (! $request->hasValidSignature()) {
+        abort(403, 'Tautan verifikasi sudah kedaluwarsa.');
+    }
+
+    if (! $user->hasVerifiedEmail()) {
+        $user->markEmailAsVerified();
+        event(new \Illuminate\Auth\Events\Verified($user));
+    }
+
+    return redirect('/login')->with('success', 'Email Anda berhasil diverifikasi! Silakan login.');
+})->name('verification.verify');
+
+Route::get('/verify/{hash}', [HomeController::class, 'verify'])->name('verify'); // Ini untuk verifikasi sertifikat/dokumen
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::middleware(['auth'])->group(function () {
