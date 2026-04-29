@@ -61,7 +61,7 @@
             @endphp
 
             @if(Auth::user()->role !== 'guest')
-                @if($latestThesis && ($latestThesis->status == 'approved' || $latestThesis->status == 'pending'))
+                @if(Auth::user()->isMahasiswa() && $latestThesis && ($latestThesis->status == 'approved' || $latestThesis->status == 'pending'))
                     <button class="btn btn-light rounded-pill px-4 fw-bold shadow-none text-muted small" disabled>
                         <i class="fas fa-check-circle me-1"></i> Sudah Diunggah
                     </button>
@@ -140,6 +140,9 @@
                                     <i class="fas fa-certificate"></i>
                                 </a>
                             @endif
+                            <a href="{{ route('theses.read', $thesis->id) }}" target="_blank" data-turbo="false" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold text-nowrap">
+                                <i class="fas fa-eye me-1"></i> Lihat Dokumen
+                            </a>
                             <a href="{{ route('theses.show', $thesis->id) }}" data-turbo="false" class="btn btn-light btn-sm rounded-pill px-3 fw-bold">
                                 Detail
                             </a>
