@@ -239,6 +239,9 @@
                                 <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pills-info{{ $thesis->id }}" type="button">Informasi</button>
                             </li>
                             <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-preview{{ $thesis->id }}" type="button">Pratinjau Dokumen</button>
+                            </li>
+                            <li class="nav-item">
                                 <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-edit{{ $thesis->id }}" type="button">Edit Data</button>
                             </li>
                         </ul>
@@ -271,6 +274,28 @@
                                             {{ $thesis->abstract ?: 'Tidak ada abstrak.' }}
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="pills-preview{{ $thesis->id }}">
+                                <div class="p-2 bg-light rounded-4 h-100 border" style="min-height: 500px;">
+                                    @if($thesis->files && $thesis->files->count() > 0)
+                                        <div class="mb-3 d-flex gap-2 overflow-auto pb-2">
+                                            @foreach($thesis->files as $file)
+                                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill text-nowrap" onclick="document.getElementById('iframe-index-{{ $thesis->id }}').src='{{ route('theses.file.stream', $file->id) }}'">
+                                                    <i class="fas fa-file-pdf me-1"></i> {{ $file->label }}
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                        <iframe id="iframe-index-{{ $thesis->id }}" src="{{ route('theses.file.stream', $thesis->files->first()->id) }}" width="100%" height="500px" style="border: none; border-radius: 12px; background: white;"></iframe>
+                                    @elseif($thesis->file_path)
+                                        <iframe src="{{ route('theses.stream', $thesis->id) }}" width="100%" height="550px" style="border: none; border-radius: 12px; background: white;"></iframe>
+                                    @else
+                                        <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center py-5">
+                                            <i class="fas fa-file-excel fa-4x text-muted mb-3 opacity-25"></i>
+                                            <h6 class="fw-bold text-muted">File Tidak Ditemukan</h6>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                             
