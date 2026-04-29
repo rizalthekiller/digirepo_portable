@@ -40,5 +40,13 @@ class AppServiceProvider extends ServiceProvider
             $view->with('siteFooter', \App\Models\Setting::get('site_footer_text', 'DigiRepo System. All rights reserved.'));
             $view->with('siteFavicon', \App\Models\Setting::get('site_favicon_path'));
         });
+
+        // Sync is_verified when email is verified
+        \Illuminate\Support\Facades\Event::listen(
+            \Illuminate\Auth\Events\Verified::class,
+            function ($event) {
+                $event->user->update(['is_verified' => true]);
+            }
+        );
     }
 }

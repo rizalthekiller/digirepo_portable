@@ -145,6 +145,11 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
             
+            // Sync is_verified jika email sudah diverifikasi melalui tautan Laravel
+            if ($user->hasVerifiedEmail() && !$user->is_verified) {
+                $user->update(['is_verified' => true]);
+            }
+
             // Cek apakah email sudah diverifikasi (Kecualikan admin, superadmin, & user yg sudah di-verify admin)
             if (!$user->isAdmin() && !$user->is_verified && $user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail()) {
                 Auth::logout();
