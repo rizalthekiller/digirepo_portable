@@ -16,18 +16,19 @@
 @endsection
 
 @section('content')
-<!-- Welcome Section -->
+@if(Auth::user()->isGuest())
+<!-- GUEST DASHBOARD -->
 <div class="mb-4">
     <h4 class="fw-bold text-dark mb-1">Selamat Datang, {{ Auth::user()->name }}!</h4>
-    <p class="text-muted small">Kelola dan pantau status pengajuan karya ilmiah Anda di sini.</p>
+    <p class="text-muted small">Temukan dan jelajahi berbagai karya ilmiah di repositori kami.</p>
 </div>
 
-<!-- Stats Overview -->
+<!-- Stats Overview for Guest -->
 <div class="row g-4 mb-5">
     @foreach([
-        ['label' => 'Total Unggahan', 'val' => Auth::user()->theses()->count(), 'desc' => 'Karya ilmiah yang telah Anda daftarkan', 'icon' => 'fas fa-file-alt', 'color' => 'primary'],
-        ['label' => 'Menunggu Verifikasi', 'val' => Auth::user()->theses()->where('status', 'pending')->count(), 'desc' => 'Sedang dalam proses peninjauan admin', 'icon' => 'fas fa-clock', 'color' => 'warning'],
-        ['label' => 'Disetujui & Publish', 'val' => Auth::user()->theses()->where('status', 'approved')->count(), 'desc' => 'Karya yang sudah dapat diakses publik', 'icon' => 'fas fa-check-circle', 'color' => 'success']
+        ['label' => 'Koleksi Tersimpan', 'val' => '0', 'desc' => 'Dokumen yang Anda bookmark', 'icon' => 'fas fa-star', 'color' => 'primary'],
+        ['label' => 'Total Unduhan', 'val' => '0', 'desc' => 'Dokumen yang pernah Anda unduh', 'icon' => 'fas fa-download', 'color' => 'success'],
+        ['label' => 'Pencarian Terakhir', 'val' => '-', 'desc' => 'Riwayat pencarian Anda', 'icon' => 'fas fa-search', 'color' => 'info']
     ] as $item)
     <div class="col-md-4">
         <div class="card stat-card shadow-sm rounded-4 h-100 border-0 overflow-hidden position-relative">
@@ -48,74 +49,203 @@
     @endforeach
 </div>
 
-<!-- Main Content Area -->
-<div class="card border-0 shadow-sm rounded-4">
-    <div class="card-header bg-white py-4 border-0">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h5 class="fw-bold mb-1 text-dark">Pengajuan Terbaru</h5>
-                <p class="text-muted small mb-0">Riwayat unggahan karya ilmiah Anda dalam sistem</p>
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white py-4 border-0">
+                <h5 class="fw-bold mb-1 text-dark">Eksplorasi Cepat</h5>
+                <p class="text-muted small mb-0">Akses menu pencarian dan penjelajahan dokumen</p>
             </div>
-            @php
-                $latestThesis = Auth::user()->theses()->orderBy('created_at', 'desc')->first();
-            @endphp
+            <div class="card-body pt-0">
+                <div class="d-grid gap-3">
+                    <a href="{{ route('browse') }}" class="btn btn-light d-flex justify-content-between align-items-center p-3 rounded-3 text-start border shadow-sm text-decoration-none" style="transition: all 0.3s;" onmouseover="this.classList.add('bg-white')" onmouseout="this.classList.remove('bg-white')">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark">Pencarian Lanjut (Advanced Search)</div>
+                                <div class="small text-muted">Cari dokumen berdasarkan judul, penulis, pembimbing, dan tahun</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted"></i>
+                    </a>
+                    
+                    <a href="{{ route('browse') }}" class="btn btn-light d-flex justify-content-between align-items-center p-3 rounded-3 text-start border shadow-sm text-decoration-none" style="transition: all 0.3s;" onmouseover="this.classList.add('bg-white')" onmouseout="this.classList.remove('bg-white')">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                                <i class="fas fa-building-columns"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark">Jelajah Berdasarkan Fakultas</div>
+                                <div class="small text-muted">Lihat koleksi karya ilmiah sesuai bidang studi dan fakultas</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted"></i>
+                    </a>
+                    
+                    <a href="{{ route('profile') }}" class="btn btn-light d-flex justify-content-between align-items-center p-3 rounded-3 text-start border shadow-sm text-decoration-none" style="transition: all 0.3s;" onmouseover="this.classList.add('bg-white')" onmouseout="this.classList.remove('bg-white')">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                                <i class="fas fa-user-gear"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark">Perbarui Profil</div>
+                                <div class="small text-muted">Kelola data pribadi dan pengaturan keamanan akun Anda</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 bg-primary text-white h-100 position-relative overflow-hidden">
+            <div class="card-body p-4 position-relative" style="z-index: 1;">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                        <i class="fas fa-headset fa-lg"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">Butuh Bantuan?</h5>
+                </div>
+                <p class="small opacity-75 mb-4">Pelajari cara mencari, membaca, dan mengunduh dokumen secara efektif di sistem repositori ini.</p>
+                <a href="{{ route('faq') }}" class="btn btn-light rounded-pill px-4 py-2 fw-bold text-primary shadow-sm w-100">
+                    <i class="fas fa-question-circle me-1"></i> Baca FAQ
+                </a>
+            </div>
+            <i class="fas fa-book-reader position-absolute text-white opacity-10" style="bottom: -20px; right: -20px; font-size: 10rem; transform: rotate(-15deg);"></i>
+        </div>
+    </div>
+</div>
+@else
+<!-- EXISTING CONTENT FOR MAHASISWA/DOSEN -->
+@php
+    $latestThesis = Auth::user()->theses()->orderBy('created_at', 'desc')->first();
+@endphp
 
-            @if(Auth::user()->role !== 'guest')
-                @if(Auth::user()->isMahasiswa() && $latestThesis && ($latestThesis->status == 'approved' || $latestThesis->status == 'pending'))
-                    <button class="btn btn-light rounded-pill px-4 fw-bold shadow-none text-muted small" disabled>
-                        <i class="fas fa-check-circle me-1"></i> Sudah Diunggah
-                    </button>
-                @elseif($latestThesis && $latestThesis->status == 'rejected')
-                    <a href="{{ route('theses.create') }}" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm">
-                        <i class="fas fa-edit me-1"></i> Revisi Dokumen
-                    </a>
+<div class="mb-4 d-flex justify-content-between align-items-end flex-wrap gap-3">
+    <div>
+        <h4 class="fw-bold text-dark mb-1">Selamat Datang, {{ Auth::user()->name }}!</h4>
+        <p class="text-muted small mb-0">Lengkapi kewajiban akademik Anda dengan mengunggah karya ilmiah ke repositori.</p>
+    </div>
+    @if(!$latestThesis || $latestThesis->status == 'rejected')
+        <a href="{{ route('theses.create') }}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+            <i class="fas {{ $latestThesis ? 'fa-edit' : 'fa-plus' }} me-2"></i> {{ $latestThesis ? 'Revisi Dokumen' : 'Unggah Karya Baru' }}
+        </a>
+    @endif
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Main Progress Tracker -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white py-4 border-0">
+                <h5 class="fw-bold mb-0 text-dark">Status Pengajuan Terakhir</h5>
+            </div>
+            <div class="card-body p-4 pt-0">
+                @if(!$latestThesis)
+                    <div class="text-center py-5">
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                            <i class="fas fa-file-upload fa-2x text-muted opacity-50"></i>
+                        </div>
+                        <h6 class="fw-bold">Belum Ada Pengajuan</h6>
+                        <p class="text-muted small mb-4">Anda belum mengunggah karya ilmiah apa pun ke sistem.</p>
+                        <a href="{{ route('theses.create') }}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">Mulai Unggah Sekarang</a>
+                    </div>
                 @else
-                    <a href="{{ route('theses.create') }}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
-                        <i class="fas fa-plus me-1"></i> Unggah Karya Baru
-                    </a>
+                    <!-- Timeline Progress -->
+                    <div class="position-relative mb-4 mt-3 px-3">
+                        <div class="progress" style="height: 6px; border-radius: 10px; background-color: #f1f5f9;">
+                            @php
+                                $progress = 33;
+                                $color = 'primary';
+                                if($latestThesis->status == 'pending') { $progress = 50; $color = 'warning'; }
+                                elseif($latestThesis->status == 'approved') { $progress = 100; $color = 'success'; }
+                                elseif($latestThesis->status == 'rejected') { $progress = 50; $color = 'danger'; }
+                            @endphp
+                            <div class="progress-bar bg-{{ $color }}" role="progressbar" style="width: {{ $progress }}%" aria-valuenow="{{ $progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="d-flex justify-content-between position-absolute w-100" style="top: -12px; left: 0;">
+                            <div class="text-center">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm mx-auto" style="width: 30px; height: 30px; border: 3px solid #fff;"><i class="fas fa-check small"></i></div>
+                                <div class="small fw-bold mt-2 text-dark">Upload</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="bg-{{ $latestThesis->status != 'pending' ? ($latestThesis->status == 'rejected' ? 'danger' : 'success') : 'white' }} {{ in_array($latestThesis->status, ['approved', 'rejected']) ? 'text-white' : 'text-muted' }} rounded-circle d-flex align-items-center justify-content-center shadow-sm mx-auto" style="width: 30px; height: 30px; border: 3px solid #fff;">
+                                    @if($latestThesis->status == 'rejected') <i class="fas fa-times small"></i> @else <i class="fas fa-search small"></i> @endif
+                                </div>
+                                <div class="small fw-bold mt-2 {{ in_array($latestThesis->status, ['approved', 'rejected']) ? 'text-dark' : 'text-muted' }}">Verifikasi</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="bg-{{ $latestThesis->status == 'approved' ? 'success' : 'white' }} {{ $latestThesis->status == 'approved' ? 'text-white' : 'text-muted' }} rounded-circle d-flex align-items-center justify-content-center shadow-sm mx-auto" style="width: 30px; height: 30px; border: 3px solid #fff;"><i class="fas fa-award small"></i></div>
+                                <div class="small fw-bold mt-2 {{ $latestThesis->status == 'approved' ? 'text-dark' : 'text-muted' }}">Selesai</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Alerts -->
+                    @if($latestThesis->status == 'rejected')
+                        <div class="alert alert-danger border-0 rounded-4 p-4 mt-5 mb-0 shadow-sm d-flex align-items-center" style="background: #fff1f2;">
+                            <div class="stat-icon-box bg-white shadow-sm me-4 text-danger flex-shrink-0"><i class="fas fa-exclamation-triangle"></i></div>
+                            <div>
+                                <h6 class="fw-bold text-danger mb-1">Pengajuan Ditolak / Butuh Revisi</h6>
+                                <p class="mb-0 text-dark opacity-75 small">Catatan Admin: "{{ $latestThesis->rejection_reason ?: 'Harap perbaiki dokumen Anda.' }}"</p>
+                            </div>
+                        </div>
+                    @elseif($latestThesis->status == 'approved')
+                        <div class="alert alert-success border-0 rounded-4 p-4 mt-5 mb-0 shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-3" style="background: #ecfdf5;">
+                            <div class="d-flex align-items-center">
+                                <div class="stat-icon-box bg-white shadow-sm me-3 text-success flex-shrink-0"><i class="fas fa-check-circle"></i></div>
+                                <div>
+                                    <h6 class="fw-bold text-success mb-1">Selamat! Karya Ilmiah Disetujui</h6>
+                                    <p class="mb-0 text-dark opacity-75 small">Dokumen Anda telah divalidasi. Anda kini dapat mencetak Sertifikat Bebas Pustaka.</p>
+                                </div>
+                            </div>
+                            <a href="{{ route('theses.certificate', $latestThesis->id) }}" target="_blank" data-turbo="false" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm d-flex align-items-center gap-2">
+                                <i class="fas fa-print"></i> Cetak Sertifikat
+                            </a>
+                        </div>
+                    @elseif($latestThesis->status == 'pending')
+                        <div class="alert alert-warning border-0 rounded-4 p-4 mt-5 mb-0 shadow-sm d-flex align-items-center" style="background: #fffbeb;">
+                            <div class="stat-icon-box bg-white shadow-sm me-4 text-warning flex-shrink-0"><i class="fas fa-clock"></i></div>
+                            <div>
+                                <h6 class="fw-bold text-warning mb-1">Sedang Dalam Antrean Verifikasi</h6>
+                                <p class="mb-0 text-dark opacity-75 small">Mohon bersabar, admin sedang meninjau kelengkapan dokumen dan meta-data yang Anda unggah.</p>
+                            </div>
+                        </div>
+                    @endif
                 @endif
-            @endif
+            </div>
         </div>
     </div>
 
-    @if($latestThesis && $latestThesis->status == 'rejected')
-        <div class="px-4 pb-4">
-            <div class="alert alert-danger border-0 rounded-4 p-4 m-0 shadow-sm d-flex align-items-center" style="background: #fff1f2;">
-                <div class="stat-icon-box bg-white shadow-sm me-4 text-danger flex-shrink-0">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div>
-                    <h6 class="fw-bold text-danger mb-1">Catatan Revisi dari Admin:</h6>
-                    <p class="mb-0 text-dark opacity-75 small">"{{ $latestThesis->rejection_reason ?: 'Harap periksa kembali berkas dan data Anda sesuai petunjuk.' }}"</p>
-                </div>
-            </div>
-        </div>
-    @elseif(Auth::user()->isMahasiswa() && $latestThesis && $latestThesis->status == 'approved')
-        <div class="px-4 pb-4">
-            <div class="alert alert-success border-0 rounded-4 p-4 m-0 shadow-sm d-flex align-items-center" style="background: #ecfdf5;">
-                <div class="stat-icon-box bg-white shadow-sm me-4 text-success flex-shrink-0">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div>
-                    <h6 class="fw-bold text-success mb-1">Selamat! Karya Ilmiah Anda Telah Disetujui</h6>
-                    <p class="mb-0 text-dark opacity-75 small">Dokumen Anda sudah terverifikasi dan dipublikasikan di repositori. Anda tidak perlu mengunggah dokumen baru lagi.</p>
+    <!-- Quick Help & Resources -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-primary text-white position-relative overflow-hidden">
+            <div class="card-body p-4 position-relative" style="z-index: 1;">
+                <h5 class="fw-bold mb-3"><i class="fas fa-book-open me-2"></i> Panduan Unggah</h5>
+                <p class="small opacity-75 mb-4">Pastikan format file dan meta-data yang Anda masukkan sesuai dengan pedoman perpustakaan.</p>
+                <div class="d-grid gap-2">
+                    <a href="{{ route('faq') }}" class="btn btn-light btn-sm rounded-pill py-2 fw-bold text-primary text-start px-3 shadow-sm">
+                        <i class="fas fa-file-pdf me-2"></i> Syarat Unggah Mandiri
+                    </a>
+                    <a href="{{ route('faq') }}" class="btn btn-light btn-sm rounded-pill py-2 fw-bold text-primary text-start px-3 shadow-sm">
+                        <i class="fas fa-question-circle me-2"></i> FAQ & Bantuan
+                    </a>
                 </div>
             </div>
+            <i class="fas fa-layer-group position-absolute text-white opacity-10" style="bottom: -20px; right: -20px; font-size: 8rem; transform: rotate(-15deg);"></i>
         </div>
-    @elseif(Auth::user()->isMahasiswa() && $latestThesis && $latestThesis->status == 'pending')
-        <div class="px-4 pb-4">
-            <div class="alert alert-info border-0 rounded-4 p-4 m-0 shadow-sm d-flex align-items-center" style="background: #f0f9ff;">
-                <div class="stat-icon-box bg-white shadow-sm me-4 text-info flex-shrink-0">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div>
-                    <h6 class="fw-bold text-info mb-1">Pengajuan Sedang Diproses</h6>
-                    <p class="mb-0 text-dark opacity-75 small">Karya ilmiah Anda sedang dalam tahap peninjauan oleh Admin. Harap bersabar menunggu hasil verifikasi.</p>
-                </div>
-            </div>
-        </div>
-    @endif
+    </div>
+</div>
 
+<!-- Main Content Area (Table) -->
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-4 border-0">
+        <h5 class="fw-bold mb-1 text-dark">Riwayat Pengajuan Anda</h5>
+        <p class="text-muted small mb-0">Daftar semua karya ilmiah yang pernah Anda ajukan ke repositori</p>
+    </div>
     <div class="table-responsive">
         <table class="table table-modern align-middle mb-0">
             <thead class="bg-light">
@@ -190,4 +320,5 @@
         </table>
     </div>
 </div>
+@endif
 @endsection

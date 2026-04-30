@@ -33,9 +33,9 @@
                 <button class="btn btn-outline-success rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#importModal">
                     <i class="fas fa-file-import me-1"></i> Import
                 </button>
-                <a href="{{ route('admin.theses.export') }}" class="btn btn-outline-primary rounded-pill px-4 fw-bold shadow-sm">
+                <button class="btn btn-outline-primary rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#exportModal">
                     <i class="fas fa-file-export me-1"></i> Export
-                </a>
+                </button>
                 <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addManualModal">
                     <i class="fas fa-plus me-1"></i> Tambah Manual
                 </button>
@@ -349,17 +349,59 @@
             <form action="{{ route('admin.theses.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body p-4 text-center">
-                    <i class="fas fa-file-excel text-success display-4 mb-3"></i>
-                    <p class="text-muted small">Pilih file Excel (.xlsx atau .xls) untuk mengunggah data skripsi secara massal.</p>
-                    <input type="file" name="file" class="form-control mb-3" accept=".xlsx,.xls" required>
+                    <i class="fas fa-file-archive text-success display-4 mb-3"></i>
+                    <p class="text-muted small">Pilih file Excel (.xlsx) atau file ZIP (.zip) yang berisi data Excel dan kumpulan file PDF untuk import massal sekaligus.</p>
+                    <input type="file" name="file" class="form-control mb-3" accept=".xlsx,.xls,.zip" required>
                     <div class="alert alert-info small text-start border-0 rounded-3">
-                        <i class="fas fa-info-circle me-1"></i> <b>Urutan Kolom:</b><br>
-                        NIM, Nama, Judul, Tipe, Tahun, Prodi, Kode Prodi, Pembimbing, Status, Abstrak, Kata Kunci.
+                        <i class="fas fa-info-circle me-1"></i> <b>Urutan Kolom Excel:</b><br>
+                        NIM, Nama, Judul, Tipe, Tahun, Prodi, Kode Prodi, Pembimbing, Status, Abstrak, Kata Kunci, <b>NAMA FILE PDF</b>.<br>
+                        <hr class="my-2 opacity-10">
+                        <i>Tips: Jika menggunakan `.zip`, pastikan Anda menulis "NAMA FILE PDF" dengan lengkap di kolom Excel (contoh: <code>skripsi_budi.pdf</code>) dan file tersebut berada di dalam file `.zip` yang sama.</i>
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
                     <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-success rounded-pill px-5 fw-bold shadow-sm">Proses Import</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Export -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="fw-bold mb-0">Export Data Repositori</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('admin.theses.export') }}" method="GET">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Dari Tanggal (Opsional)</label>
+                            <input type="date" name="start_date" class="form-control rounded-3">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Sampai Tanggal (Opsional)</label>
+                            <input type="date" name="end_date" class="form-control rounded-3">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Format Export</label>
+                            <select name="format" class="form-select rounded-3" required>
+                                <option value="excel">Hanya Data Excel (.xlsx)</option>
+                                <option value="zip">Data Excel + File PDF (.zip)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning small text-start border-0 rounded-3 mt-3 mb-0">
+                        <i class="fas fa-exclamation-triangle me-1"></i> <b>Catatan:</b> Export dalam format ZIP yang menyertakan file PDF mungkin membutuhkan waktu yang lebih lama jika datanya sangat besar.
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">Proses Export</button>
                 </div>
             </form>
         </div>

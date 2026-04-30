@@ -51,7 +51,7 @@
                     <tr>
                         <th class="ps-4" style="width: 50px;">NO.</th>
                         <th style="width: 40%;">DETAIL DOKUMEN</th>
-                        <th>MAHASISWA</th>
+                        <th>PENGIRIM</th>
                         <th class="text-center">FILE</th>
                         <th class="text-end pe-4">AKSI</th>
                     </tr>
@@ -69,7 +69,11 @@
                         </td>
                         <td>
                             <div class="fw-bold text-dark small">{{ $thesis->user->name ?? 'User Terhapus' }}</div>
-                            <div class="text-muted extra-small">{{ $thesis->user->department?->name ?? 'Umum/Non-Prodi' }}</div>
+                            @if($thesis->user && $thesis->user->isDosen())
+                                <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-2 py-1 extra-small fw-bold"><i class="fas fa-chalkboard-teacher me-1"></i>Dosen</span>
+                            @else
+                                <div class="text-muted extra-small">{{ $thesis->user->department?->name ?? 'Umum/Non-Prodi' }}</div>
+                            @endif
                         </td>
                         <td class="text-center">
                             @if($thesis->file_path)
@@ -126,20 +130,24 @@
                         </div>
                     </div>
                     <div class="col-lg-4">
+                        @php $isDosen = $thesis->user && $thesis->user->isDosen(); @endphp
                         <form action="{{ route('admin.theses.approve', $thesis->id) }}" method="POST">
                             @csrf
                             <div class="mb-3">
-                                <label class="form-label small fw-bold">Judul Skripsi</label>
+                                <label class="form-label small fw-bold">Judul</label>
                                 <textarea name="title" class="form-control rounded-3 small" rows="3" required>{{ $thesis->title ?? '' }}</textarea>
                             </div>
+                            @if(!$isDosen)
                             <div class="mb-3">
                                 <label class="form-label small fw-bold">Dosen Pembimbing</label>
                                 <input type="text" name="supervisor_name" class="form-control rounded-3 small" value="{{ $thesis->supervisor_name ?? '' }}" required>
                             </div>
+                            @endif
                             <div class="mb-3">
                                 <label class="form-label small fw-bold">Abstrak</label>
                                 <textarea name="abstract" class="form-control rounded-3 small" rows="5" required>{{ $thesis->abstract ?? '' }}</textarea>
                             </div>
+                            @if(!$isDosen)
                             <div class="mb-4">
                                 <label class="form-label small fw-bold">Nomor Urut Sertifikat (Opsional)</label>
                                 <input type="number" name="cert_number_seq" class="form-control rounded-3 small" placeholder="Contoh: 001">
@@ -148,9 +156,18 @@
                                 <label class="form-label small fw-bold">Masa Embargo (Opsional)</label>
                                 <input type="date" name="embargo_until" class="form-control rounded-3 small">
                             </div>
+                            @else
+                            <div class="alert alert-info border-0 rounded-3 small mb-4">
+                                <i class="fas fa-info-circle me-1"></i> Dokumen Dosen disetujui <b>tanpa sertifikat</b>. Hanya dipublikasikan di repositori.
+                            </div>
+                            @endif
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-success py-2 rounded-pill fw-bold" {{ !$thesis->file_path ? 'disabled' : '' }}>
-                                    SETUJUI & WATERMARK
+                                    @if($isDosen)
+                                        <i class="fas fa-check me-1"></i> SETUJUI & PUBLIKASIKAN
+                                    @else
+                                        <i class="fas fa-check me-1"></i> SETUJUI & WATERMARK
+                                    @endif
                                 </button>
                                 <button type="button" class="btn btn-outline-danger py-2 rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $thesis->id }}">
                                     TOLAK / REVISI
@@ -175,7 +192,7 @@
             <form action="{{ route('admin.theses.reject', $thesis->id) }}" method="POST">
                 @csrf
                 <div class="modal-body p-4">
-                    <p class="text-muted small">Berikan alasan mengapa dokumen ini ditolak. Pesan ini akan dikirimkan ke mahasiswa.</p>
+                    <p class="text-muted small">Berikan alasan mengapa dokumen ini ditolak atau perlu direvisi. Pesan ini akan dikirimkan ke pengirim dokumen.</p>
                     <textarea name="reason" class="form-control rounded-3" rows="4" placeholder="Contoh: File PDF rusak, judul tidak sesuai..." required></textarea>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">

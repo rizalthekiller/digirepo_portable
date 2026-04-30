@@ -123,10 +123,10 @@ class ThesisController extends Controller
 
         $user = auth()->user();
         $isOwner = auth()->id() === $thesis->user_id;
-        $isAdmin = $user->isAdmin();
+        $isAdmin = $user?->isAdmin() ?? false;
 
         // Guest cannot download
-        if ($user->isGuest()) {
+        if ($user?->isGuest()) {
             abort(403, 'Akun Tamu (Guest) tidak diperbolehkan mengunduh dokumen, hanya dapat membaca secara online.');
         }
 
@@ -286,7 +286,7 @@ class ThesisController extends Controller
 
         // Allow if current user is the owner, OR if current user is an admin
         $isOwner = auth()->check() && auth()->id() === $thesis->user_id;
-        $isAdmin = auth()->check() && auth()->user()->role === 'admin';
+        $isAdmin = auth()->check() && auth()->user()->isAdmin();
 
         if (!$isOwner && !$isAdmin) {
             abort(403);

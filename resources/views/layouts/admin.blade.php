@@ -13,7 +13,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
-        :root { --sidebar-width: 260px; --primary-color: #4f46e5; }
+        :root { 
+            --sidebar-width: 260px; 
+            --primary-color: #1e3a8a; 
+            --bs-primary: #1e3a8a;
+            --bs-primary-rgb: 30, 58, 138;
+        }
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; }
         .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-width); background: #1e293b; color: #fff; z-index: 1000; transition: all 0.3s; }
         .sidebar-brand { padding: 1.5rem; font-size: 1.1rem; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 12px; color: #fff; text-decoration: none; letter-spacing: -0.5px; }
@@ -72,9 +77,16 @@
                 <a href="{{ route('admin.theses.index') }}" class="nav-link {{ Request::is('admin/theses*') ? 'active' : '' }}"><i class="fas fa-database"></i> Database Repositori</a>
                 <a href="{{ route('admin.certificates.index') }}" class="nav-link {{ Request::is('admin/certificates*') ? 'active' : '' }}"><i class="fas fa-award"></i> Arsip Sertifikat</a>
                 <a href="{{ route('admin.reports.index') }}" class="nav-link {{ Request::is('admin/reports*') ? 'active' : '' }}"><i class="fas fa-chart-pie"></i> Statistik & Laporan</a>
+            @elseif(Auth::user()->isGuest())
+                <a href="{{ route('dashboard') }}" class="nav-link {{ Request::is('dashboard') ? 'active' : '' }}"><i class="fas fa-house"></i> Dashboard Personal</a>
+                <a href="{{ route('browse') }}" class="nav-link {{ Request::is('browse*') || Request::is('search*') ? 'active' : '' }}"><i class="fas fa-search"></i> Eksplorasi & Pencarian</a>
+                <a href="#" class="nav-link text-muted" title="Segera Hadir" onclick="alert('Fitur Koleksi Saya akan segera hadir!');"><i class="fas fa-star"></i> Koleksi Saya <span class="badge bg-secondary ms-auto" style="font-size:0.6rem">SOON</span></a>
+                <a href="#" class="nav-link text-muted" title="Segera Hadir" onclick="alert('Fitur Riwayat Unduhan akan segera hadir!');"><i class="fas fa-clock-rotate-left"></i> Riwayat Akses <span class="badge bg-secondary ms-auto" style="font-size:0.6rem">SOON</span></a>
+                <a href="{{ route('profile') }}" class="nav-link {{ Request::is('profile*') ? 'active' : '' }}"><i class="fas fa-user-gear"></i> Profil & Pengaturan</a>
             @else
                 <a href="{{ route('dashboard') }}" class="nav-link {{ Request::is('dashboard') ? 'active' : '' }}"><i class="fas fa-house"></i> Dashboard</a>
                 <a href="{{ route('theses.create') }}" class="nav-link {{ Request::is('theses/upload') ? 'active' : '' }}"><i class="fas fa-cloud-upload-alt"></i> Unggah Karya Baru</a>
+                <a href="{{ route('browse') }}" class="nav-link {{ Request::is('browse*') || Request::is('search*') ? 'active' : '' }}"><i class="fas fa-search"></i> Penelusuran</a>
                 <a href="{{ route('profile') }}" class="nav-link {{ Request::is('profile*') ? 'active' : '' }}"><i class="fas fa-user-gear"></i> Profil Saya</a>
             @endif
             

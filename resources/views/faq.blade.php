@@ -116,34 +116,44 @@
         <div class="accordion animate-fade-in" id="faqAccordion">
             @foreach([
                 [
-                    'cat' => 'Akun & Pendaftaran',
-                    'q' => 'Bagaimana cara mendaftar akun di DigiRepo?',
-                    'a' => 'Anda dapat mendaftar dengan mengklik tombol "Daftar" di pojok kanan atas. Pastikan menggunakan email institusi yang valid (misal: @univ.ac.id) dan mengisi data diri sesuai dengan identitas resmi mahasiswa Anda untuk mempercepat proses verifikasi.'
+                    'cat' => 'Mahasiswa: Akun & Verifikasi',
+                    'q' => 'Bagaimana cara mendaftar akun untuk Mahasiswa?',
+                    'a' => 'Gunakan menu "Register" dan pilih peran Mahasiswa. Pastikan Anda memasukkan NIM dengan benar dan menggunakan email institusi aktif untuk mempercepat proses verifikasi oleh Admin.'
                 ],
                 [
-                    'cat' => 'Verifikasi',
-                    'q' => 'Berapa lama proses verifikasi akun?',
-                    'a' => 'Tim Admin perpustakaan biasanya melakukan verifikasi akun dalam waktu 1x24 jam pada hari kerja. Pastikan data yang Anda input sudah benar. Anda akan menerima email notifikasi segera setelah akun disetujui untuk digunakan.'
+                    'cat' => 'Mahasiswa: Syarat Unggah Mandiri',
+                    'q' => 'Apa saja syarat dokumen untuk unggah mandiri?',
+                    'a' => 'Dokumen harus berupa satu file PDF utuh (mulai dari halaman judul, lembar pengesahan, hingga lampiran). Lembar pengesahan wajib sudah ditandatangani oleh dosen pembimbing dan penguji (bisa berupa hasil scan). Ukuran file maksimal 20MB.'
                 ],
                 [
-                    'cat' => 'Teknis Upload',
-                    'q' => 'Apa saja syarat file skripsi yang boleh diunggah?',
-                    'a' => 'File harus dalam format PDF dengan ukuran maksimal 20MB. Berkas harus merupakan satu kesatuan (full text) mulai dari halaman judul hingga lampiran yang telah ditandatangani dan disahkan oleh pembimbing serta penguji.'
+                    'cat' => 'Mahasiswa: Revisi & Sertifikat',
+                    'q' => 'Bagaimana jika pengajuan saya ditolak, dan bagaimana cara dapat sertifikat?',
+                    'a' => 'Jika ditolak, baca catatan dari Admin di Dashboard Anda, perbaiki dokumen, dan unggah ulang. Jika disetujui (Approved), Anda bisa langsung mencetak Sertifikat Bukti Penyerahan Mandiri (Syarat Bebas Pustaka) dari Dashboard.'
                 ],
                 [
-                    'cat' => 'Proses Penolakan',
-                    'q' => 'Bagaimana jika pengajuan skripsi saya ditolak?',
-                    'a' => 'Jangan khawatir! Jika ditolak, Admin akan menyertakan alasan spesifik pada Dashboard Anda. Anda dapat memperbaiki kesalahan tersebut (baik pada data input maupun berkas PDF), lalu menekan tombol "Revisi" untuk mengajukan kembali.'
+                    'cat' => 'Dosen: Eksplorasi Karya',
+                    'q' => 'Bagaimana cara Dosen mencari skripsi mahasiswa bimbingan?',
+                    'a' => 'Bapak/Ibu Dosen dapat menggunakan fitur "Pencarian Lanjut" di menu Jelajah. Cukup ketikkan nama mahasiswa, atau saring pencarian berdasarkan nama Bapak/Ibu di kolom Dosen Pembimbing.'
                 ],
                 [
-                    'cat' => 'Sertifikat',
-                    'q' => 'Bagaimana cara mendapatkan sertifikat bukti penyerahan?',
-                    'a' => 'Sertifikat digital akan diterbitkan dan dikirimkan ke email Anda secara otomatis sesaat setelah status pengajuan berubah menjadi "Approved". Selain di email, sertifikat juga tersimpan permanen di menu Dashboard akun Anda.'
+                    'cat' => 'Dosen: Akses Dokumen',
+                    'q' => 'Apakah Dosen dapat mengunduh semua file karya ilmiah?',
+                    'a' => 'Ya. Dengan login menggunakan akun Dosen, Bapak/Ibu memiliki hak istimewa (hak akses penuh) untuk membaca dan mengunduh berkas skripsi (Full Text) mahasiswa tanpa batasan.'
                 ],
                 [
-                    'cat' => 'Akses Publik',
-                    'q' => 'Apakah publik bisa membaca full text skripsi?',
-                    'a' => 'Ya, sistem kami mendukung keterbukaan informasi akademik. Publik dapat membaca abstrak secara bebas. Untuk membaca full text, pengunjung mungkin perlu melakukan autentikasi atau login sesuai kebijakan akses data institusi.'
+                    'cat' => 'Guest: Akses Peneliti Luar',
+                    'q' => 'Saya peneliti dari kampus lain, bagaimana cara mencari referensi di sini?',
+                    'a' => 'Silakan mendaftar akun dengan memilih role "Guest". Anda diwajibkan menggunakan Nomor Induk Kependudukan (NIK) KTP atau nomor Paspor sebagai identitas dan melengkapi isian Asal Instansi.'
+                ],
+                [
+                    'cat' => 'Guest: Batasan Akses',
+                    'q' => 'Apakah akun Guest bisa mengunduh file skripsi utuh (Full Text)?',
+                    'a' => 'Tergantung kebijakan institusi dan masa embargo dokumen. Biasanya, publik dan Guest selalu dapat membaca Abstrak dan Bab awal secara bebas. Beberapa Full Text mungkin dikunci dan memerlukan izin khusus dari perpustakaan untuk alasan hak cipta.'
+                ],
+                [
+                    'cat' => 'Umum: Aturan Sitasi',
+                    'q' => 'Apa aturan mengutip/sitasi karya dari DigiRepo?',
+                    'a' => 'Seluruh dokumen di sini dilindungi oleh hak cipta. Jika Anda mengutip, wajib mencantumkan sitasi resmi (Nama Penulis, Tahun Lulus, Judul, Institusi, dan URL dokumen di sistem kami). Plagiarisme sangat dilarang.'
                 ]
             ] as $index => $faq)
             <div class="accordion-item shadow-sm">

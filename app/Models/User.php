@@ -34,6 +34,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'is_verified',
         'department_id',
+        'affiliation',
     ];
 
     public function isSuperAdmin(): bool { return $this->role === self::ROLE_SUPERADMIN; }
@@ -57,6 +58,22 @@ class User extends Authenticatable implements MustVerifyEmail
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    /**
+     * Boot the model to handle cascading deletes with file removal.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($user) {
+            // Harus memanggil delete() per item agar trigger di model Thesis berjalan
+            // Sehingga file PDF fisik di server ikut terhapus dengan sempurna
+            $user->theses->each(function ($thesis) {
+                $thesis->delete();
+            });
+        });
     }
 
     /**

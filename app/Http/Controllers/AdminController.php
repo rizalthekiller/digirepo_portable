@@ -499,6 +499,119 @@ class AdminController extends Controller
         return view('admin.reports.index', compact('monthlyTrends', 'visitTrends', 'statusStats', 'typeStats'));
     }
 
+    public function exportReports(Request $request)
+    {
+        if (!class_exists('\PhpOffice\PhpSpreadsheet\Spreadsheet')) {
+            return redirect()->back()->with('error', 'Gagal: Library PhpSpreadsheet tidak ditemukan.');
+        }
+
+        $startDate = $request->start_date ? $request->start_date . ' 00:00:00' : '2000-01-01 00:00:00';
+        $endDate = $request->end_date ? $request->end_date . ' 23:59:59' : now()->format('Y-m-d 23:59:59');
+
+        $totalVisit = \App\Models\Visit::whereBetween('created_at', [$startDate, $endDate])->count();
+        $approved = Thesis::where('status', 'approved')->whereBetween('created_at', [$startDate, $endDate])->count();
+        $pending = Thesis::where('status', 'pending')->whereBetween('created_at', [$startDate, $endDate])->count();
+        $rejected = Thesis::where('status', 'rejected')->whereBetween('created_at', [$startDate, $endDate])->count();
+
+        $typeStats = Thesis::selectRaw('type, count(*) as total')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->groupBy('type')
+            ->get();
+
+        $monthlyTrends = Thesis::selectRaw('MONTHNAME(created_at) as month, count(*) as total')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->groupBy('month')
+            ->get();
+
+        $visitTrends = \App\Models\Visit::selectRaw('MONTHNAME(created_at) as month, count(*) as total')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->groupBy('month')
+            ->get();
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Laporan Statistik');
+
+        // Styles
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '1e3a8a']
+            ],
+        ];
+
+        // Section 1: Ringkasan
+        $sheet->setCellValue('A1', 'RINGKASAN STATISTIK REPOSITORI');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->setCellValue('A2', 'Periode: ' . ($request->start_date ?: 'Awal') . ' s/d ' . ($request->end_date ?: 'Sekarang'));
+        
+        $sheet->setCellValue('A4', 'METRIK');
+        $sheet->setCellValue('B4', 'TOTAL');
+        $sheet->getStyle('A4:B4')->applyFromArray($headerStyle);
+        
+        $sheet->setCellValue('A5', 'Total Kunjungan');
+        $sheet->setCellValue('B5', $totalVisit);
+        $sheet->setCellValue('A6', 'Dokumen Disetujui');
+        $sheet->setCellValue('B6', $approved);
+        $sheet->setCellValue('A7', 'Dokumen Menunggu Review');
+        $sheet->setCellValue('B7', $pending);
+        $sheet->setCellValue('A8', 'Dokumen Ditolak/Revisi');
+        $sheet->setCellValue('B8', $rejected);
+
+        // Section 2: Distribusi Tipe
+        $sheet->setCellValue('D4', 'TIPE DOKUMEN');
+        $sheet->setCellValue('E4', 'TOTAL');
+        $sheet->getStyle('D4:E4')->applyFromArray($headerStyle);
+        
+        $row = 5;
+        foreach($typeStats as $type) {
+            $sheet->setCellValue('D'.$row, $type->type);
+            $sheet->setCellValue('E'.$row, $type->total);
+            $row++;
+        }
+
+        // Section 3: Tren Unggahan Bulanan
+        $startRow = max(10, $row + 2);
+        $sheet->setCellValue('A'.$startRow, 'BULAN');
+        $sheet->setCellValue('B'.$startRow, 'TOTAL UNGGAHAN');
+        $sheet->getStyle('A'.$startRow.':B'.$startRow)->applyFromArray($headerStyle);
+
+        $row = $startRow + 1;
+        foreach($monthlyTrends as $trend) {
+            $sheet->setCellValue('A'.$row, $trend->month);
+            $sheet->setCellValue('B'.$row, $trend->total);
+            $row++;
+        }
+
+        // Section 4: Tren Kunjungan Bulanan
+        $sheet->setCellValue('D'.$startRow, 'BULAN');
+        $sheet->setCellValue('E'.$startRow, 'TOTAL KUNJUNGAN');
+        $sheet->getStyle('D'.$startRow.':E'.$startRow)->applyFromArray($headerStyle);
+
+        $row = $startRow + 1;
+        foreach($visitTrends as $visit) {
+            $sheet->setCellValue('D'.$row, $visit->month);
+            $sheet->setCellValue('E'.$row, $visit->total);
+            $row++;
+        }
+
+        // Autosize
+        foreach(range('A','E') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $filename = "Laporan_Statistik_" . date('Ymd_His') . ".xlsx";
+        
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit;
+    }
+
     public function dashboard()
     {
         $totalTheses = Thesis::count();
@@ -746,13 +859,28 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Data skripsi berhasil ditambahkan secara manual (Logika Sinkron dengan DigiRepo).');
     }
 
-    public function exportTheses()
+    public function exportTheses(Request $request)
     {
         if (!class_exists('\PhpOffice\PhpSpreadsheet\Spreadsheet')) {
             return redirect()->back()->with('error', 'Gagal: Library PhpSpreadsheet tidak ditemukan.');
         }
 
-        $theses = Thesis::with('user.department')->latest()->get();
+        $query = Thesis::with('user.department')->latest();
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
+        } elseif ($request->filled('start_date')) {
+            $query->where('created_at', '>=', $request->start_date . ' 00:00:00');
+        } elseif ($request->filled('end_date')) {
+            $query->where('created_at', '<=', $request->end_date . ' 23:59:59');
+        }
+
+        $theses = $query->get();
+
+        if ($theses->isEmpty()) {
+            return redirect()->back()->with('error', 'Gagal: Tidak ada data skripsi pada rentang tanggal tersebut.');
+        }
+
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
@@ -767,7 +895,7 @@ class AdminController extends Controller
         ];
 
         // Headers
-        $headers = ['NIM', 'PENULIS', 'JUDUL', 'TIPE', 'TAHUN', 'PRODI', 'KODE PRODI', 'PEMBIMBING', 'STATUS', 'ABSTRAK', 'KATA KUNCI'];
+        $headers = ['NIM', 'PENULIS', 'JUDUL', 'TIPE', 'TAHUN', 'PRODI', 'KODE PRODI', 'PEMBIMBING', 'STATUS', 'ABSTRAK', 'KATA KUNCI', 'FILE PDF'];
         $column = 'A';
         foreach ($headers as $header) {
             $sheet->setCellValue($column . '1', $header);
@@ -791,18 +919,67 @@ class AdminController extends Controller
             $sheet->setCellValue('I' . $row, $t->status);
             $sheet->setCellValue('J' . $row, $t->abstract);
             $sheet->setCellValue('K' . $row, $t->keywords);
+            $sheet->setCellValue('L' . $row, $t->file_path ? basename($t->file_path) : '');
             $row++;
         }
 
-        $filename = "Arsip_Skripsi_" . date('Ymd_His') . ".xlsx";
-        
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="' . $filename . '"');
-        header('Cache-Control: max-age=0');
+        if ($request->format === 'zip') {
+            if (!class_exists('ZipArchive')) {
+                return redirect()->back()->with('error', 'Gagal: PHP ZipArchive extension tidak aktif di server.');
+            }
 
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-        $writer->save('php://output');
-        exit;
+            $tempDir = storage_path('app/temp_export_' . time());
+            if (!\Illuminate\Support\Facades\File::exists($tempDir)) {
+                \Illuminate\Support\Facades\File::makeDirectory($tempDir, 0755, true);
+            }
+
+            // Save Excel to temp folder
+            $excelFilename = "Arsip_Skripsi_" . date('Ymd_His') . ".xlsx";
+            $excelPath = $tempDir . '/' . $excelFilename;
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $writer->save($excelPath);
+
+            $zipFilename = "Export_Repositori_" . date('Ymd_His') . ".zip";
+            $zipPath = storage_path('app/' . $zipFilename);
+
+            $zip = new \ZipArchive;
+            if ($zip->open($zipPath, \ZipArchive::CREATE) === TRUE) {
+                $zip->addFile($excelPath, $excelFilename);
+
+                // Add PDFs
+                foreach ($theses as $t) {
+                    if ($t->file_path) {
+                        $publicPath = str_replace('storage/', '', $t->file_path);
+                        $absolutePath = storage_path('app/public/' . $publicPath);
+                        if (\Illuminate\Support\Facades\File::exists($absolutePath)) {
+                            // avoid name collision
+                            $pdfName = basename($t->file_path);
+                            $zip->addFile($absolutePath, $pdfName);
+                        }
+                    }
+                }
+                $zip->close();
+            }
+
+            // Cleanup temp dir
+            \Illuminate\Support\Facades\File::deleteDirectory($tempDir);
+
+            if (file_exists($zipPath)) {
+                return response()->download($zipPath)->deleteFileAfterSend(true);
+            } else {
+                return redirect()->back()->with('error', 'Gagal membuat file ZIP.');
+            }
+        } else {
+            $filename = "Arsip_Skripsi_" . date('Ymd_His') . ".xlsx";
+            
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $writer->save('php://output');
+            exit;
+        }
     }
 
     public function importTheses(Request $request)
@@ -812,17 +989,57 @@ class AdminController extends Controller
         }
         
         $request->validate([
-            'file' => 'required|file|mimes:xls,xlsx,csv'
+            'file' => 'required|file|mimes:xls,xlsx,csv,zip|max:512000' // Max 500MB
         ]);
 
         $file = $request->file('file');
+        $extension = strtolower($file->getClientOriginalExtension());
+        $isZip = $extension === 'zip';
+        $tempDir = null;
+        $excelPath = $file->getRealPath();
+
+        if ($isZip) {
+            if (!class_exists('ZipArchive')) {
+                return redirect()->back()->with('error', 'Gagal: PHP ZipArchive extension tidak aktif di server.');
+            }
+
+            $tempDir = storage_path('app/temp_import_' . time());
+            if (!\Illuminate\Support\Facades\File::exists($tempDir)) {
+                \Illuminate\Support\Facades\File::makeDirectory($tempDir, 0755, true);
+            }
+
+            $zip = new \ZipArchive;
+            if ($zip->open($excelPath) === TRUE) {
+                $zip->extractTo($tempDir);
+                $zip->close();
+            } else {
+                \Illuminate\Support\Facades\File::deleteDirectory($tempDir);
+                return redirect()->back()->with('error', 'Gagal mengekstrak file ZIP.');
+            }
+
+            // Cari file Excel di folder hasil ekstrak (bisa di root atau subfolder pertama)
+            $excelFiles = [];
+            $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($tempDir));
+            foreach ($iterator as $info) {
+                if ($info->isFile() && in_array(strtolower($info->getExtension()), ['xls', 'xlsx', 'csv'])) {
+                    $excelFiles[] = $info->getRealPath();
+                }
+            }
+
+            if (empty($excelFiles)) {
+                \Illuminate\Support\Facades\File::deleteDirectory($tempDir);
+                return redirect()->back()->with('error', 'Gagal: Tidak ada file Excel (.xlsx/.xls/.csv) di dalam file ZIP.');
+            }
+            $excelPath = $excelFiles[0]; // Ambil file excel pertama yang ditemukan
+        }
 
         try {
-            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getRealPath());
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($excelPath);
             $sheet = $spreadsheet->getActiveSheet();
             $highestRow = $sheet->getHighestRow();
             $success = 0;
             $skipped = 0;
+            $pdfsFound = 0;
 
             for ($i = 2; $i <= $highestRow; $i++) {
                 $nim            = trim($sheet->getCell('A' . $i)->getValue());
@@ -835,6 +1052,7 @@ class AdminController extends Controller
                 $status         = strtolower(trim($sheet->getCell('I' . $i)->getValue())) ?: 'approved';
                 $abstract       = $sheet->getCell('J' . $i)->getValue();
                 $keywords       = $sheet->getCell('K' . $i)->getValue();
+                $pdfFileName    = trim($sheet->getCell('L' . $i)->getValue());
 
                 if (empty($nim) || empty($title)) {
                     $skipped++;
@@ -855,17 +1073,51 @@ class AdminController extends Controller
 
                 // Find/Create User
                 $user = $existingUser;
+                $dept = \App\Models\Department::with('faculty')->where('code', $deptCode)->first();
                 if (!$user) {
-                    $dept = \App\Models\Department::where('code', $deptCode)->first();
                     $user = User::create([
                         'name' => $studentName ?: 'Mahasiswa ' . $nim,
                         'nim' => $nim,
-                        'email' => $nim . '@uinsi.ac.id',
+                        'email' => strtolower($nim) . '@uinsi.ac.id',
                         'password' => bcrypt('password123'),
                         'role' => 'mahasiswa',
                         'department_id' => $dept->id ?? null,
                         'is_verified' => true
                     ]);
+                }
+
+                $savedFilePath = null;
+
+                // Proses file PDF jika mode ZIP dan kolom L ada isinya
+                if ($isZip && !empty($pdfFileName)) {
+                    $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($tempDir));
+                    $pdfFile = null;
+                    foreach ($iterator as $info) {
+                        // Pencocokan nama file dengan mengabaikan case (huruf besar/kecil)
+                        if ($info->isFile() && strtolower($info->getFilename()) === strtolower($pdfFileName)) {
+                            $pdfFile = $info->getRealPath();
+                            break;
+                        }
+                    }
+
+                    if ($pdfFile) {
+                        $facName = \Illuminate\Support\Str::slug($dept->faculty->name ?? 'Unknown_Faculty', '_');
+                        $deptName = \Illuminate\Support\Str::slug($dept->name ?? 'Unknown_Dept', '_');
+                        $typePath = \Illuminate\Support\Str::slug($type ?: 'Skripsi', '_');
+                        $yearPath = $year ?: date('Y');
+                        
+                        $folderPath = "theses/{$typePath}/{$yearPath}/{$facName}/{$deptName}";
+                        $finalFileName = \Illuminate\Support\Str::slug($nim, '_') . ".pdf";
+                        
+                        $destinationPath = storage_path('app/public/' . $folderPath);
+                        if (!\Illuminate\Support\Facades\File::exists($destinationPath)) {
+                            \Illuminate\Support\Facades\File::makeDirectory($destinationPath, 0755, true);
+                        }
+
+                        \Illuminate\Support\Facades\File::copy($pdfFile, $destinationPath . '/' . $finalFileName);
+                        $savedFilePath = 'storage/' . $folderPath . '/' . $finalFileName;
+                        $pdfsFound++;
+                    }
                 }
 
                 Thesis::create([
@@ -877,14 +1129,26 @@ class AdminController extends Controller
                     'supervisor_name' => $supervisor,
                     'type' => $type ?: 'Skripsi',
                     'status' => $status,
-                    'file_path' => null // Metadata only import
+                    'file_path' => $savedFilePath
                 ]);
                 
                 $success++;
             }
 
-            return redirect()->back()->with('success', "$success data berhasil diimport, $skipped data dilewati (kosong atau duplikat).");
+            if ($isZip && $tempDir) {
+                \Illuminate\Support\Facades\File::deleteDirectory($tempDir);
+            }
+
+            $msg = "$success data berhasil diimport, $skipped data dilewati (kosong atau duplikat).";
+            if ($isZip) {
+                $msg .= " Total PDF yang berhasil dipasangkan: $pdfsFound file.";
+            }
+
+            return redirect()->back()->with('success', $msg);
         } catch (\Exception $e) {
+            if ($isZip && $tempDir) {
+                \Illuminate\Support\Facades\File::deleteDirectory($tempDir);
+            }
             return redirect()->back()->with('error', 'Gagal memproses file: ' . $e->getMessage());
         }
     }

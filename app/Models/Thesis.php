@@ -44,9 +44,15 @@ class Thesis extends Model
 
         // Smart Delete: Hapus file fisik saat record dihapus
         static::deleting(function ($thesis) {
+            // Hapus file utama
             if ($thesis->file_path && Storage::disk('public')->exists($thesis->file_path)) {
                 Storage::disk('public')->delete($thesis->file_path);
             }
+
+            // Memicu trigger delete pada masing-masing file bab/lampiran (ThesisFile)
+            $thesis->files->each(function ($file) {
+                $file->delete();
+            });
         });
 
         // Smart Update: Hapus file lama jika file baru diunggah

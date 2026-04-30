@@ -80,6 +80,7 @@ class AuthController extends Controller
             'nim' => ['required', 'string', 'unique:users'],
             'role' => ['required', 'in:mahasiswa,dosen,guest'],
             'department_id' => [in_array($request->role, ['guest', 'dosen']) ? 'nullable' : 'required', 'exists:departments,id'],
+            'affiliation' => ['nullable', 'string', 'max:255'],
         ]);
 
         $user = User::create([
@@ -90,6 +91,7 @@ class AuthController extends Controller
             'role' => $request->role,
             'is_verified' => false,
             'department_id' => in_array($request->role, ['guest', 'dosen']) ? null : $request->department_id,
+            'affiliation' => $request->affiliation,
         ]);
 
         // Kirim email verifikasi standar Laravel
@@ -106,11 +108,13 @@ class AuthController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'nim' => ['required', 'string', 'unique:users,nim,' . $user->id],
+            'affiliation' => ['nullable', 'string', 'max:255'],
         ]);
 
         $user->update([
             'name' => $request->name,
             'nim' => $request->nim,
+            'affiliation' => $request->affiliation,
         ]);
 
         return back()->with('success', 'Profil berhasil diperbarui.');

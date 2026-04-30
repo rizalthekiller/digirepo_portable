@@ -27,6 +27,8 @@
     <style>
         :root {
             --primary: #1e3a8a;        /* Navy Blue - Professional & Elegant */
+            --bs-primary: #1e3a8a;     /* Override Bootstrap Primary */
+            --bs-primary-rgb: 30, 58, 138;
             --primary-light: #3b82f6;  /* Blue - Friendly Accent */
             --primary-gradient: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
             --secondary: #64748b;      /* Slate - For Muted Text */

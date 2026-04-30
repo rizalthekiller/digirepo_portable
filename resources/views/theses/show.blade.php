@@ -295,7 +295,7 @@
                                 <div class="col-12">
                                     <div class="meta-item">
                                         <span class="label-meta">Program Studi</span>
-                                        <div class="value-meta">{{ $thesis->user->department->name ?? '-' }}</div>
+                                        <div class="value-meta">{{ $thesis->user->department?->name ?? '-' }}</div>
                                     </div>
                                 </div>
                                 @endif

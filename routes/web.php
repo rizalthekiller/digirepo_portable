@@ -167,6 +167,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     
     // System Reports (Accessible by all Admins)
     Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports.index');
+    Route::get('/reports/export', [AdminController::class, 'exportReports'])->name('admin.reports.export');
 
     // Data Surat / Sertifikat
     Route::get('/certificates', [AdminController::class, 'certificates'])->name('admin.certificates.index');

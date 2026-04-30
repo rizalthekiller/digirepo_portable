@@ -27,10 +27,16 @@
                     {{ substr(Auth::user()->name, 0, 1) }}
                 </div>
                 <h4 class="fw-bold mb-1 text-dark">{{ Auth::user()->name }}</h4>
-                <p class="text-muted small mb-4">{{ Auth::user()->email }}</p>
+                <p class="text-muted small mb-2">{{ Auth::user()->email }}</p>
+                
+                <div class="mb-3">
+                    <span class="badge {{ Auth::user()->isGuest() ? 'bg-info' : 'bg-primary' }} text-white rounded-pill px-3 py-1 fw-bold text-uppercase" style="font-size: 0.7rem;">
+                        {{ Auth::user()->role }}
+                    </span>
+                </div>
                 
                 <div class="badge bg-light text-primary rounded-pill px-4 py-2 mb-4 border fw-bold">
-                    <i class="fas fa-id-card me-2"></i> {{ Auth::user()->nim ?: 'ADMINISTRATOR' }}
+                    <i class="fas fa-id-card me-2"></i> {{ Auth::user()->nim ?: (Auth::user()->isGuest() ? 'BELUM DIATUR' : 'ADMINISTRATOR') }}
                 </div>
 
                 <div class="p-4 bg-light rounded-4 text-center mt-2 border border-dashed">
@@ -73,9 +79,10 @@
                     </div>
                     <div class="col-md-6">
                         <div class="info-group">
-                            <span class="info-label">NIM / Nomor Identitas</span>
+                            <span class="info-label">{{ Auth::user()->getIdentityLabel() }}</span>
                             <div class="info-value">{{ Auth::user()->nim ?: '-' }}</div>
                         </div>
+                        @if(!Auth::user()->isGuest())
                         <div class="info-group">
                             <span class="info-label">Program Studi</span>
                             <div class="info-value">{{ Auth::user()->department->name ?? 'Administrator System' }}</div>
@@ -87,6 +94,19 @@
                             <div class="info-value">{{ Auth::user()->department->faculty->name ?? 'Pusat Data DigiRepo' }}</div>
                         </div>
                     </div>
+                        @else
+                        <div class="info-group">
+                            <span class="info-label">Asal Instansi / Afiliasi</span>
+                            <div class="info-value {{ !Auth::user()->affiliation ? 'text-muted fst-italic' : '' }}">{{ Auth::user()->affiliation ?: 'Masyarakat Umum / Peneliti Luar' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="info-group">
+                            <span class="info-label">Hak Akses</span>
+                            <div class="info-value text-success"><i class="fas fa-check-circle me-1"></i> Guest Repository Aktif</div>
+                        </div>
+                    </div>
+                        @endif
                 </div>
 
                 <div class="mt-4 pt-4 border-top border-dashed">
@@ -136,9 +156,18 @@
                         <input type="text" name="name" class="form-control rounded-3" value="{{ Auth::user()->name }}" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">NIM / Nomor Identitas</label>
+                        <label class="form-label small fw-bold">{{ Auth::user()->getIdentityLabel() }}</label>
                         <input type="text" name="nim" class="form-control rounded-3" value="{{ Auth::user()->nim }}" required>
+                        @if(Auth::user()->isGuest())
+                            <div class="form-text extra-small mt-1 text-muted">Gunakan Nomor Induk Kependudukan (NIK) KTP atau nomor Paspor.</div>
+                        @endif
                     </div>
+                    @if(Auth::user()->isGuest())
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Asal Instansi / Afiliasi (Opsional)</label>
+                        <input type="text" name="affiliation" class="form-control rounded-3" value="{{ Auth::user()->affiliation }}" placeholder="Contoh: Universitas Brawijaya / Peneliti Mandiri">
+                    </div>
+                    @endif
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
                     <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Batal</button>

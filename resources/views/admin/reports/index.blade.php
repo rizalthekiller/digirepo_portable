@@ -146,17 +146,28 @@
 </div>
 
 <div class="card border-0 shadow-sm rounded-4 bg-primary text-white p-4">
-    <div class="row align-items-center">
-        <div class="col-md-8">
-            <h4 class="fw-bold mb-2 text-white">Ekspor Data Koleksi</h4>
-            <p class="opacity-75 mb-0 small">Dapatkan laporan lengkap seluruh koleksi skripsi dalam format Excel (.xlsx).</p>
+    <form action="{{ route('admin.reports.export') }}" method="GET">
+        <div class="row align-items-center">
+            <div class="col-md-5">
+                <h4 class="fw-bold mb-2 text-white">Ekspor Laporan & Statistik</h4>
+                <p class="opacity-75 mb-0 small">Unduh data rekapitulasi statistik repositori dalam format Excel (.xlsx).</p>
+            </div>
+            <div class="col-md-3 mt-3 mt-md-0">
+                <label class="small fw-bold opacity-75 mb-1">Dari Tanggal (Opsional)</label>
+                <input type="date" name="start_date" class="form-control rounded-3 border-0 bg-white bg-opacity-10 text-white" style="color-scheme: dark;">
+            </div>
+            <div class="col-md-3 mt-3 mt-md-0">
+                <label class="small fw-bold opacity-75 mb-1">Sampai Tanggal (Opsional)</label>
+                <input type="date" name="end_date" class="form-control rounded-3 border-0 bg-white bg-opacity-10 text-white" style="color-scheme: dark;">
+            </div>
+            <div class="col-md-1 mt-3 mt-md-0 text-md-end">
+                <label class="small mb-1 d-block">&nbsp;</label>
+                <button type="submit" class="btn btn-white bg-white text-primary rounded-pill px-4 fw-bold shadow-sm w-100">
+                    <i class="fas fa-download"></i>
+                </button>
+            </div>
         </div>
-        <div class="col-md-4 text-md-end mt-3 mt-md-0">
-            <a href="{{ route('admin.theses.export') }}" class="btn btn-white bg-white text-primary rounded-pill px-4 fw-bold shadow-sm">
-                <i class="fas fa-download me-2"></i> DOWNLOAD EXCEL
-            </a>
-        </div>
-    </div>
+    </form>
 </div>
 @endsection
 
